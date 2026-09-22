@@ -64,6 +64,10 @@ function repeatContracts(value) {
     const attributes = match[2];
     const attribute = (name) => new RegExp(`(?:^|\\s)${name}="([^"]*)"`, 'u').exec(attributes)?.[1] || '';
     const containerClass = (attribute('class').split(/\s+/u).find((className) => className && !className.includes('{{'))) || '';
+    const roleTags = Object.fromEntries(attribute('data-layout-role-tags').split(/\s+/u).filter(Boolean).map((token) => {
+      const separator = token.indexOf(':');
+      return separator < 0 ? [token, ''] : [token.slice(0, separator), token.slice(separator + 1)];
+    }));
     repeats.push({
       name: match[3],
       containerTag: match[1].toLowerCase(),
@@ -71,6 +75,9 @@ function repeatContracts(value) {
       itemTag: attribute('data-layout-item-tag').toLowerCase(),
       itemClass: attribute('data-layout-item-class'),
       roleClasses: attribute('data-layout-item-roles').split(/\s+/u).filter(Boolean),
+      allowedItemClasses: attribute('data-layout-allowed-item-classes').split(/\s+/u).filter(Boolean),
+      roleTags,
+      directRoleClasses: attribute('data-layout-direct-roles').split(/\s+/u).filter(Boolean),
     });
   }
   return repeats;
@@ -303,13 +310,21 @@ async function extractDeck(browser, filePath, contracts, candidate) {
                 contractFailures.push(`repeat group ${repeat.name} item ${itemIndex + 1} is not canonical ${repeat.itemTag}.${repeat.itemClass}`);
                 continue;
               }
+              const allowedClasses = new Set([repeat.itemClass, ...repeat.allowedItemClasses]);
+              for (const className of item.classList) if (!allowedClasses.has(className)) contractFailures.push(`repeat group ${repeat.name} item ${itemIndex + 1} has undeclared modifier class .${className}`);
               let lastRoleIndex = -1;
               const descendants = [...item.querySelectorAll('*')];
               for (const roleClass of repeat.roleClasses) {
                 const matches = descendants.map((element, indexValue) => ({ element, indexValue })).filter(({ element }) => element.classList.contains(roleClass));
                 if (matches.length !== 1) contractFailures.push(`repeat group ${repeat.name} item ${itemIndex + 1} requires exactly one .${roleClass}`);
-                else if (matches[0].indexValue <= lastRoleIndex) contractFailures.push(`repeat group ${repeat.name} item ${itemIndex + 1} role .${roleClass} is out of canonical order`);
-                else lastRoleIndex = matches[0].indexValue;
+                else {
+                  const match = matches[0];
+                  const roleTag = repeat.roleTags[roleClass];
+                  if (match.indexValue <= lastRoleIndex) contractFailures.push(`repeat group ${repeat.name} item ${itemIndex + 1} role .${roleClass} is out of canonical order`);
+                  else lastRoleIndex = match.indexValue;
+                  if (roleTag && match.element.tagName.toLowerCase() !== roleTag) contractFailures.push(`repeat group ${repeat.name} item ${itemIndex + 1} role .${roleClass} must use <${roleTag}>`);
+                  if (repeat.directRoleClasses.includes(roleClass) && match.element.parentElement !== item) contractFailures.push(`repeat group ${repeat.name} item ${itemIndex + 1} role .${roleClass} is not directly nested`);
+                }
               }
             }
           }
