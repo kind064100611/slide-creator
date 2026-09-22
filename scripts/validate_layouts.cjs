@@ -248,8 +248,16 @@ function staticChecks() {
     failures.push('metric-grid: repeatable lead + primary + secondary metric contract is missing');
   }
   const flexTable = read('layouts/flex-table.html');
-  if (!/class="flex-table-lead"/u.test(flexTable) || !/\{\{TABLE_BODY_ROWS\}\}/u.test(flexTable)) {
-    failures.push('flex-table: lead-plus-table contract is missing');
+  if (!/class="flex-table-lead"/u.test(flexTable)
+      || !/<div class="flex-table"[^>]*role="table"/u.test(flexTable)
+      || !/class="flex-table-head"[^>]*role="row"/u.test(flexTable)
+      || !/class="flex-table-rows"[^>]*role="rowgroup"/u.test(flexTable)
+      || !/data-layout-item-class="flex-table-head-cell"/u.test(flexTable)
+      || !/data-layout-item-class="flex-table-row"/u.test(flexTable)
+      || !/\{\{TABLE_HEAD_CELLS\}\}/u.test(flexTable)
+      || !/\{\{TABLE_BODY_ROWS\}\}/u.test(flexTable)
+      || /<(?:table|thead|tbody|tr|th|td)\b/iu.test(flexTable)) {
+    failures.push('flex-table: lead-plus-div-grid contract is missing or still uses semantic table tags');
   }
   const lossLayout = read('layouts/metric-grid-support-warning.html');
   if (!/class="loss-main"/u.test(lossLayout) || !/class="loss-main-label"/u.test(lossLayout) || !/class="loss-main-value"/u.test(lossLayout)
@@ -361,8 +369,8 @@ function buildPriorityFixture() {
   const summaryCards = Array.from({ length: 4 }, (_, index) => `<article class="card-row-summary-card" data-pptx-shape data-geometry-contain-content><span class="card-row-summary-index" data-pptx-shape data-pptx-text>0${index + 1}</span><h2 class="card-row-summary-card-title">Response ${index + 1}</h2><div class="card-row-summary-card-content"><ul><li>Action one.</li><li>Action two.</li></ul></div></article>`).join('');
   slides.push(fill(layouts['card-row-summary'].body, { ...common, SLIDE_ID: 'card-row-summary', TITLE: 'Risk response', CARD_COUNT: '4', CARDS: summaryCards, SUMMARY_LABEL: 'Summary', SUMMARY_BODY: 'Forward-looking measures reduce uncertainty.' }));
 
-  const headers = ['Category', 'Assumption', 'Conservative', 'Neutral', 'Optimistic'].map((value) => `<th class="flex-table-head-cell" data-pptx-shape><span class="flex-table-head-copy">${value}</span></th>`).join('');
-  const rows = Array.from({ length: 5 }, (_, row) => `<tr class="flex-table-row"><th data-pptx-shape><p>Row ${row + 1}</p></th>${Array.from({ length: 4 }, (_, column) => `<td data-pptx-shape><p>Scenario ${column + 1}</p></td>`).join('')}</tr>`).join('');
+  const headers = ['Category', 'Assumption', 'Conservative', 'Neutral', 'Optimistic'].map((value) => `<div class="flex-table-head-cell" data-pptx-shape><span class="flex-table-head-copy" data-pptx-text>${value}</span></div>`).join('');
+  const rows = Array.from({ length: 5 }, (_, row) => `<div class="flex-table-row"><div class="flex-table-row-header" data-pptx-shape><p data-pptx-text>Row ${row + 1}</p></div>${Array.from({ length: 4 }, (_, column) => `<div class="flex-table-cell" data-pptx-shape><p data-pptx-text>Scenario ${column + 1}</p></div>`).join('')}</div>`).join('');
   slides.push(fill(layouts['flex-table'].body, { ...common, SLIDE_ID: 'flex-table', TITLE: 'ROI model', LEAD_TITLE: 'Core financial conclusion', LEAD_BODY: 'The conservative case maintains positive cash flow.', TABLE_LABEL: 'ROI assumptions', COLUMN_COUNT: '5', ROW_COUNT: '5', TABLE_HEAD_CELLS: headers, TABLE_BODY_ROWS: rows }));
 
   return fill(shell, {
@@ -589,10 +597,36 @@ async function renderedChecks(page, html, sourceLabel, { requireSourceOwner = fa
       if (layout === 'flex-table') {
         const table = slide.querySelector('.flex-table');
         const columnCount = Number(table?.dataset.columnCount);
-        const headerCells = table ? [...table.querySelectorAll(':scope > thead > tr > th')] : [];
-        const rows = table ? [...table.querySelectorAll(':scope > tbody > tr')] : [];
-        if (!Number.isInteger(columnCount) || columnCount < 1 || headerCells.length !== columnCount) failures.push(`${sourceLabel}: slide ${index + 1} flex table header count must equal data-column-count`);
-        for (const [rowIndex, row] of rows.entries()) if (row.children.length !== columnCount) failures.push(`${sourceLabel}: slide ${index + 1} flex table row ${rowIndex + 1} cell count must equal data-column-count`);
+        const head = table?.querySelector(':scope > .flex-table-head');
+        const body = table?.querySelector(':scope > .flex-table-rows');
+        const headerCells = head ? [...head.children] : [];
+        const rows = body ? [...body.children] : [];
+        if (!table || table.tagName !== 'DIV' || table.getAttribute('role') !== 'table' || table.querySelector('table,thead,tbody,tr,th,td')) {
+          failures.push(`${sourceLabel}: slide ${index + 1} flex table must use the canonical div-grid table contract`);
+        }
+        if (!head || head.tagName !== 'DIV' || head.getAttribute('role') !== 'row') failures.push(`${sourceLabel}: slide ${index + 1} flex table requires one direct div.flex-table-head row`);
+        if (!body || body.tagName !== 'DIV' || body.getAttribute('role') !== 'rowgroup') failures.push(`${sourceLabel}: slide ${index + 1} flex table requires one direct div.flex-table-rows rowgroup`);
+        if (!Number.isInteger(columnCount) || columnCount < 2 || columnCount > 5 || headerCells.length !== columnCount) failures.push(`${sourceLabel}: slide ${index + 1} flex table header count must equal its 2-5 data-column-count`);
+        for (const [cellIndex, cell] of headerCells.entries()) {
+          const copy = cell.querySelector(':scope > span.flex-table-head-copy[data-pptx-text]');
+          if (cell.tagName !== 'DIV' || !cell.classList.contains('flex-table-head-cell') || !cell.hasAttribute('data-pptx-shape') || cell.children.length !== 1 || !copy) {
+            failures.push(`${sourceLabel}: slide ${index + 1} flex table header ${cellIndex + 1} does not match the canonical materializable cell contract`);
+          }
+        }
+        if (rows.length < 2 || rows.length > 7) failures.push(`${sourceLabel}: slide ${index + 1} flex table requires 2-7 body rows`);
+        for (const [rowIndex, row] of rows.entries()) {
+          if (row.tagName !== 'DIV' || !row.classList.contains('flex-table-row') || row.children.length !== columnCount) {
+            failures.push(`${sourceLabel}: slide ${index + 1} flex table row ${rowIndex + 1} must be a canonical div row with data-column-count cells`);
+            continue;
+          }
+          for (const [cellIndex, cell] of [...row.children].entries()) {
+            const expectedClass = cellIndex === 0 ? 'flex-table-row-header' : 'flex-table-cell';
+            const copy = cell.querySelector(':scope > p[data-pptx-text]');
+            if (cell.tagName !== 'DIV' || !cell.classList.contains(expectedClass) || !cell.hasAttribute('data-pptx-shape') || cell.children.length !== 1 || !copy) {
+              failures.push(`${sourceLabel}: slide ${index + 1} flex table row ${rowIndex + 1} cell ${cellIndex + 1} does not match the canonical ${expectedClass} contract`);
+            }
+          }
+        }
       }
     }
     if (owners.length !== new Set(owners).size) failures.push(`${sourceLabel}: duplicate data-source-owner`);
@@ -625,7 +659,7 @@ async function renderedChecks(page, html, sourceLabel, { requireSourceOwner = fa
       }
     }
     const table = document.querySelector('#flex-table');
-    if (table && (table.querySelectorAll('thead th').length !== 5 || table.querySelectorAll('tbody tr').length !== 5 || !table.querySelector('.flex-table-lead'))) failures.push('flex-table: fixture is missing lead or 5x5 table');
+    if (table && (table.querySelectorAll('.flex-table-head > .flex-table-head-cell').length !== 5 || table.querySelectorAll('.flex-table-rows > .flex-table-row').length !== 5 || !table.querySelector('.flex-table-lead'))) failures.push('flex-table: fixture is missing its lead or 5-column/5-row div grid');
     const summary = document.querySelector('#summary-band-evidence-cards');
     if (summary) {
       const group = summary.querySelector('.summary-band-evidence-cards');
