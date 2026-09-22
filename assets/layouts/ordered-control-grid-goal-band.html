@@ -1,0 +1,26 @@
+<style data-layout-style="ordered-control-grid-goal-band">
+    .slide[data-layout="ordered-control-grid-goal-band"] .canvas { display:block; padding:4cqh 3cqw 3.3cqh; }
+    .slide[data-layout="ordered-control-grid-goal-band"] .slide-header { display:block; height:auto; border-bottom:0; }
+    .slide[data-layout="ordered-control-grid-goal-band"] .title { margin:0 0 3.3cqh; font-size:clamp(34px,2.56cqw,49px); line-height:1.1; font-weight:800; letter-spacing:0; }
+    .slide[data-layout="ordered-control-grid-goal-band"] .title::before { display:inline-block; width:.38cqw; height:3.35cqh; margin-right:1.06cqw; background:var(--accent-1); vertical-align:-.22cqh; box-shadow:.38cqw 1.33cqh 0 -.06cqw var(--negative); content:""; }
+    .slide[data-layout="ordered-control-grid-goal-band"] .panel { border:1px solid var(--panel-line); border-radius:.38cqw; background:var(--panel-background); }
+    .slide[data-layout="ordered-control-grid-goal-band"] .control-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.75cqw; margin:8.67cqh 0 0; }
+    .slide[data-layout="ordered-control-grid-goal-band"] .control { display:flex; height:48.9cqh; flex-direction:column; padding:3.33cqh 1.88cqw; border-top:.45cqh solid var(--accent-1); }
+    .slide[data-layout="ordered-control-grid-goal-band"] .control:nth-child(2) { border-top-color:var(--accent-2); }
+    .slide[data-layout="ordered-control-grid-goal-band"] .control:nth-child(3) { border-top-color:var(--accent-3); }
+    .slide[data-layout="ordered-control-grid-goal-band"] .idx { display:block; color:var(--accent-1); font-size:clamp(36px,2.75cqw,53px); font-weight:900; font-style:italic; line-height:1; }
+    .slide[data-layout="ordered-control-grid-goal-band"] .control h2 { margin:1.55cqh 0; font-size:clamp(20px,1.5cqw,29px); line-height:1.18; }
+    .slide[data-layout="ordered-control-grid-goal-band"] .control ul { margin:0; padding-left:1.5cqw; color:var(--muted); font-size:clamp(13px,1cqw,19px); line-height:1.48; }
+    .slide[data-layout="ordered-control-grid-goal-band"] .control-goal { margin-top:auto; padding:2cqh 1cqw; border:1px solid var(--panel-line); border-radius:.44cqw; color:var(--accent-1); font-weight:800; line-height:1.25; text-align:center; }
+    .slide[data-layout="ordered-control-grid-goal-band"] .quality { position:absolute; right:3cqw; bottom:6.9cqh; left:3cqw; display:grid; height:13.9cqh; place-items:center; padding:0 3cqw; border:1px solid var(--panel-line); border-left:.38cqw solid var(--accent-1); border-radius:.38cqw; background:var(--panel-background); font-size:clamp(20px,1.5cqw,29px); line-height:1.25; text-align:center; }
+    .slide[data-layout="ordered-control-grid-goal-band"] .quality small { display:block; margin-top:1.55cqh; color:var(--muted); font-size:clamp(15px,1.13cqw,22px); }
+    .slide[data-layout="ordered-control-grid-goal-band"] .red { color:var(--negative); }
+    .slide[data-layout="ordered-control-grid-goal-band"] .deck-foot { position:absolute; right:3cqw; bottom:1.1cqh; left:3cqw; min-height:0; color:var(--muted); }
+</style>
+<!-- Fixed skeleton: four ordered peer control cards, each with an ordinal, title, checklist, and card-owned goal, followed by one full-width overall goal band. Repeat only control cards. -->
+<section id="{{SLIDE_ID}}" class="slide" data-layout="ordered-control-grid-goal-band" aria-label="{{SLIDE_LABEL}}"><article class="canvas"><span class="rail" data-pptx-shape aria-hidden="true"></span>
+  <header class="slide-header compact slide-section" data-pptx-shape><h1 class="title">{{TITLE}}</h1></header>
+  <div class="control-grid" data-layout-repeat="control-cards" data-layout-count="{{CONTROL_COUNT}}" data-layout-item-tag="article" data-layout-item-class="control" data-layout-item-roles="idx control-title control-list control-goal">{{CONTROL_CARDS}}</div>
+  <div class="quality" data-pptx-shape data-geometry-contain-content>{{QUALITY}}</div>
+  <footer class="deck-foot"><p>{{FOOTER_NOTE}}</p><p>{{PAGE_COUNTER}}</p></footer>
+</article></section>

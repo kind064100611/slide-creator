@@ -1,0 +1,29 @@
+<style data-layout-style="action-plan">
+    .slide[data-layout="action-plan"] .plan-grid { display:grid; flex:0 0 38cqh; grid-template-columns:repeat(auto-fit,minmax(20cqw,1fr)); grid-auto-rows:minmax(0,1fr); gap:1.8cqw; padding:3cqh 0; }
+    .slide[data-layout="action-plan"] .plan-card { position:relative; overflow:hidden; padding:2.4cqh 1.5cqw; border:1px solid var(--panel-line); border-radius:.72cqw; background:var(--panel-background); }
+    .slide[data-layout="action-plan"] .plan-card::before { position:absolute; inset:0 auto 0 0; width:.34cqw; background:var(--positive); content:""; }
+    .slide[data-layout="action-plan"] .plan-card:nth-child(3n+2)::before { background:var(--accent-1); }
+    .slide[data-layout="action-plan"] .plan-card:nth-child(3n+3)::before { background:var(--accent-2); }
+    .slide[data-layout="action-plan"] .plan-kicker { margin:0 0 1.2cqh; color:var(--quiet); font-size:clamp(9px,.7cqw,14px); font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .slide[data-layout="action-plan"] .plan-card h2 { margin:0 0 1.6cqh; font-size:clamp(17px,1.48cqw,29px); line-height:1.05; }
+    .slide[data-layout="action-plan"] .plan-card ol { display:grid; gap:1.25cqh; margin:2cqh 0 0; padding-left:1.2cqw; }
+    .slide[data-layout="action-plan"] .plan-card li { margin:0; color:var(--muted); font-size:clamp(10px,.88cqw,17px); line-height:1.35; }
+    .slide[data-layout="action-plan"] .plan-owner { display:inline-block; margin-top:2cqh; color:var(--positive); font-size:clamp(9px,.72cqw,14px); font-weight:800; text-transform:uppercase; }
+    .slide[data-layout="action-plan"] .plan-scorecard { display:grid; flex:0 0 28cqh; grid-template-columns:1.05fr 2.4fr; gap:3cqw; align-content:center; align-items:center; }
+    .slide[data-layout="action-plan"] .plan-scorecard-copy h2 { margin:0 0 1.4cqh; font-size:clamp(20px,1.8cqw,35px); }
+    .slide[data-layout="action-plan"] .plan-scorecard-body h3 { margin:0 0 .8cqh; font-size:clamp(12px,1.02cqw,20px); }
+    .slide[data-layout="action-plan"] .plan-scorecard-body p,.slide[data-layout="action-plan"] .plan-scorecard-body li { color:var(--muted); font-size:clamp(10px,.78cqw,15px); line-height:1.28; }
+    .slide[data-layout="action-plan"] .plan-scorecard-body p { margin:0; }
+    .slide[data-layout="action-plan"] .plan-scorecard-body ul { display:grid; gap:.45cqh; margin:0; padding-left:1.1cqw; }
+    .slide[data-layout="action-plan"] .plan-scores { display:grid; grid-template-columns:repeat(auto-fit,minmax(9cqw,1fr)); gap:1cqw; }
+    .slide[data-layout="action-plan"] .plan-score { min-height:13cqh; padding:1.8cqh 1cqw; border:1px solid var(--panel-line); border-radius:.55cqw; background:var(--panel-2); }
+    .slide[data-layout="action-plan"] .plan-score strong { display:block; margin-bottom:1.25cqh; color:var(--positive); font-size:clamp(13px,1.15cqw,22px); }
+    .slide[data-layout="action-plan"] .plan-score span { color:var(--muted); font-size:clamp(9px,.74cqw,14px); line-height:1.28; }
+</style>
+<section id="{{SLIDE_ID}}" class="slide" data-layout="action-plan" aria-label="{{SLIDE_LABEL}}"><article class="canvas"><span class="rail" data-pptx-shape aria-hidden="true"></span>
+  <header class="slide-header slide-section" data-pptx-shape><div><span class="status-chip" data-pptx-shape data-pptx-text>{{STATUS}}</span><h1>{{TITLE}}</h1><p class="subtitle">{{SUBTITLE}}</p></div><div class="pills">{{PILLS}}</div></header>
+  <!-- Use only for source-authored actions or workstreams. Repeat only plan-card peers, li steps inside each plan-card, and plan-score peers. Rules, guarantees, limitations, evidence groups, and descriptive panels belong in a general content layout. This slide owns the complete visible workstream set and its supported measures. If added peers fail the geometry floor, split at a source-owned boundary rather than shrinking text or inventing a new region. -->
+  <section class="plan-grid slide-section" data-layout-repeat="plan-cards" data-layout-count="{{PLAN_COUNT}}" data-layout-item-tag="article" data-layout-item-class="plan-card" data-layout-item-roles="plan-kicker plan-title plan-actions plan-owner" data-plan-count="{{PLAN_COUNT}}" data-pptx-shape aria-label="{{PLAN_LABEL}}">{{PLAN_CARDS}}</section>
+  <section class="plan-scorecard slide-section" data-pptx-shape><div class="plan-scorecard-copy"><span class="status-chip" data-pptx-shape data-pptx-text>{{SCORECARD_STATUS}}</span><h2>{{SCORECARD_TITLE}}</h2><div class="plan-scorecard-body">{{SCORECARD_BODY}}</div></div><div class="plan-scores" data-layout-repeat="plan-scores" data-layout-count="{{SCORE_COUNT}}" data-layout-item-tag="div" data-layout-item-class="plan-score" data-layout-item-roles="plan-score-value plan-score-label" data-score-count="{{SCORE_COUNT}}">{{SCORE_CARDS}}</div></section>
+  <footer class="deck-foot"><p>{{FOOTER_NOTE}}</p><p>{{PAGE_COUNTER}}</p></footer>
+</article></section>

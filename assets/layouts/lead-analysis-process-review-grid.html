@@ -1,0 +1,35 @@
+<style data-layout-style="lead-analysis-process-review-grid">
+    .slide[data-layout="lead-analysis-process-review-grid"] .canvas { display:block; padding:4cqh 3cqw 3.3cqh; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .slide-header { display:block; height:auto; border-bottom:0; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .title { margin:0 0 3.3cqh; font-size:clamp(34px,2.56cqw,49px); line-height:1.1; font-weight:800; letter-spacing:0; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .title::before { display:inline-block; width:.38cqw; height:3.35cqh; margin-right:1.06cqw; background:var(--accent-1); vertical-align:-.22cqh; box-shadow:.38cqw 1.33cqh 0 -.06cqw var(--negative); content:""; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .panel { border:1px solid var(--panel-line); border-radius:.38cqw; background:var(--panel-background); }
+    .slide[data-layout="lead-analysis-process-review-grid"] .root-banner { display:grid; height:19.45cqh; grid-template-columns:11.88cqw repeat(3,1fr); align-items:center; gap:2.25cqw; padding:3.78cqh 2.75cqw; border-left:.5cqw solid var(--negative); }
+    .slide[data-layout="lead-analysis-process-review-grid"] .root-banner h2 { margin:0; color:var(--negative); font-size:clamp(23px,1.75cqw,34px); line-height:1.15; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .root-banner p { margin:0; font-size:clamp(16px,1.18cqw,23px); line-height:1.5; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .section-label { margin:3.78cqh 0 2.2cqh; color:var(--accent-1); font-size:clamp(21px,1.56cqw,30px); line-height:1.1; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .process-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.56cqw; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .process { height:21.67cqh; padding:3.33cqh 1.88cqw; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .process h3 { margin:0 0 1.5cqh; font-size:clamp(17px,1.32cqw,25px); line-height:1.2; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .process h3 em { margin-right:.75cqw; color:var(--muted); font-size:clamp(24px,1.82cqw,35px); font-style:normal; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .process.hot { border-color:color-mix(in srgb,var(--negative) 45%,var(--panel-line)); }
+    .slide[data-layout="lead-analysis-process-review-grid"] .process.hot h3,.slide[data-layout="lead-analysis-process-review-grid"] .process.hot h3 em { color:var(--negative); }
+    .slide[data-layout="lead-analysis-process-review-grid"] .process p { margin:0; color:var(--muted); font-size:clamp(13px,1cqw,19px); line-height:1.5; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .review-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.56cqw; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .review { height:20cqh; padding:3.33cqh 1.88cqw; border-top:.55cqh solid var(--accent-1); }
+    .slide[data-layout="lead-analysis-process-review-grid"] .review:first-child { border-top-color:var(--negative); }
+    .slide[data-layout="lead-analysis-process-review-grid"] .review:last-child { border-top-color:var(--muted); }
+    .slide[data-layout="lead-analysis-process-review-grid"] .review h3 { margin:0 0 1.2cqh; font-size:clamp(17px,1.32cqw,25px); line-height:1.2; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .review p { margin:0; color:var(--muted); font-size:clamp(13px,1cqw,19px); line-height:1.5; }
+    .slide[data-layout="lead-analysis-process-review-grid"] .deck-foot { position:absolute; right:3cqw; bottom:1.1cqh; left:3cqw; min-height:0; color:var(--muted); }
+</style>
+<!-- Fixed skeleton: one root-cause banner with three peer narrative facts, then a labeled four-step process row, then a labeled three-card review/management cause row. Repeat process cards and review cards only. -->
+<section id="{{SLIDE_ID}}" class="slide" data-layout="lead-analysis-process-review-grid" aria-label="{{SLIDE_LABEL}}"><article class="canvas"><span class="rail" data-pptx-shape aria-hidden="true"></span>
+  <header class="slide-header compact slide-section" data-pptx-shape><h1 class="title">{{TITLE}}</h1></header>
+  <div class="panel root-banner" data-pptx-shape data-geometry-contain-content>{{ROOT_BANNER}}</div>
+  <h2 class="section-label">{{PROCESS_LABEL}}</h2>
+  <div class="process-grid" data-layout-repeat="process-cards" data-layout-count="{{PROCESS_COUNT}}" data-layout-item-tag="article" data-layout-item-class="process" data-layout-item-roles="process-title process-copy">{{PROCESS_CARDS}}</div>
+  <h2 class="section-label">{{REVIEW_LABEL}}</h2>
+  <div class="review-grid" data-layout-repeat="review-cards" data-layout-count="{{REVIEW_COUNT}}" data-layout-item-tag="article" data-layout-item-class="review" data-layout-item-roles="review-title review-copy">{{REVIEW_CARDS}}</div>
+  <footer class="deck-foot"><p>{{FOOTER_NOTE}}</p><p>{{PAGE_COUNTER}}</p></footer>
+</article></section>

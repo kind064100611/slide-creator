@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HR Annual Strategy - Reference HTML</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#d6d8d5;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;color:#17231d}
+body{display:flex;flex-direction:column;align-items:center;gap:28px;padding:12px}
+.slide{position:relative;width:1600px;height:900px;overflow:hidden;background:#f7f8f4;padding:34px 48px 30px}
+.slide:before{content:"HR DEPARTMENT ANNUAL REPORT";position:absolute;left:48px;bottom:18px;color:#547063;font-size:12px;font-weight:700;letter-spacing:1.4px}
+.slide:after{content:"STRATEGIC ROI & TALENT GROWTH";position:absolute;right:48px;bottom:18px;color:#76877f;font-size:12px;letter-spacing:1.6px}
+.title{margin:0 0 28px;font-size:38px;line-height:1.1;font-weight:800}
+.title:before{content:"";display:inline-block;width:7px;height:38px;margin-right:18px;border-radius:2px;background:#276445;vertical-align:-5px}
+.year{position:absolute;right:48px;top:45px;border:1px solid #a8bcae;border-radius:5px;padding:6px 14px;color:#86a08f;font-size:13px}
+.card{background:#fff;border:1px solid #e1e8e2;border-radius:8px;box-shadow:0 8px 22px rgba(49,75,61,.07)}
+.green{color:#276445}
+.gold{color:#d9a46f}
+.muted{color:#718177}
+.talent-layout{display:grid;grid-template-columns:2fr 1.15fr;gap:30px}
+.talent-left{display:grid;grid-template-rows:330px 1fr;gap:26px}
+.talent-intro{display:grid;grid-template-columns:1fr 2fr;gap:28px}
+.share{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.share strong{font-size:70px;color:#d9a46f}
+.share b{font-size:25px}
+.share span{margin-top:20px;color:#8aa091}
+.assessment{padding:12px 0}
+.assessment h2{font-size:28px;color:#276445;margin:0 0 22px}
+.assessment p{color:#718177;font-size:19px;line-height:1.55}
+.assess-row{display:grid;gap:12px;margin-top:26px}
+.assess-row span{padding:13px 20px;background:#fff;border-radius:8px;border:1px solid #e4e8e2;box-shadow:0 4px 12px rgba(49,75,61,.06);font-weight:700}
+.assess-row i{color:#d9a46f;font-style:normal;margin-right:16px}
+.strategy-block h2{margin:0 0 20px;font-size:28px}
+.strategy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.strategy{height:280px;padding:30px;border-top:4px solid #276445}
+.strategy:nth-child(2){border-top-color:#8cae9c}
+.strategy:nth-child(3){border-top-color:#d9a46f}
+.strategy h3{font-size:23px;margin:0 0 24px}
+.strategy p{color:#718177;font-size:18px;line-height:1.65}
+.talent-right{display:grid;grid-template-rows:1fr 1fr 1fr;gap:22px}
+.side{padding:34px}
+.side h2{font-size:25px;color:#276445;margin:0 0 22px}
+.side strong{font-size:42px;color:#d9a46f}
+.side p{color:#718177;font-size:18px;line-height:1.6}
+.side.dark{background:#276445;color:#fff}
+.side.dark h2{color:#fff}
+.side.dark strong{font-size:48px}
+.side.dark p{color:#e6efe9}
+.incentive-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;height:735px}
+.incentive{padding:44px 38px;display:flex;flex-direction:column}
+.incentive h2{font-size:29px;color:#276445;margin:0 0 26px;padding-bottom:16px;border-bottom:1px solid #dce5dd}
+.incentive h3{font-size:21px;margin:0 0 10px}
+.incentive p{margin:0 0 32px;color:#718177;font-size:17px;line-height:1.55}
+.highlight{margin-top:auto;padding:38px 20px;border-radius:8px;background:#f7f7f3;text-align:center}
+.highlight strong{display:block;color:#d9a46f;font-size:42px;margin-bottom:12px}
+.quote{margin-top:36px;padding:42px 24px;border-radius:8px;background:#276445;color:#fff;text-align:center;font-size:25px;font-weight:800}
+.roi-summary{display:grid;grid-template-columns:300px 1fr 1fr;gap:42px;align-items:center;height:175px;padding:38px 50px}
+.roi-summary small{display:block;color:#8aa091;font-size:18px}
+.roi-summary strong{display:block;color:#d9a46f;font-size:57px}
+.roi-summary p{margin:0;padding-left:42px;border-left:1px solid #dbe3dc;font-size:20px;line-height:1.55}
+.roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;margin-top:30px}
+.roi-card{height:555px;padding:44px 48px;border-top:5px solid #276445}
+.roi-card > .idx{display:flex;align-items:center;justify-content:center;width:50px;height:50px;margin:0;border-radius:7px;background:#276445;color:#fff;font-size:21px;font-weight:800;line-height:1;text-align:center}
+.roi-card h2{font-size:27px;color:#276445;margin:32px 0 20px}
+.roi-card h2:after{content:"";display:block;width:50px;border-bottom:5px solid #d9a46f;margin-top:18px}
+.roi-card strong{display:block;color:#d9a46f;font-size:41px}
+.roi-card span:not(.idx){display:block;margin:14px 0 28px;color:#8aa091;font-size:18px}
+.roi-card ul{margin:0;padding-left:24px;color:#718177;font-size:18px;line-height:1.65}
+.roi-card li{margin-bottom:20px}
+
+.talent-layout{height:750px}
+.talent-left{grid-template-rows:310px 1fr;gap:20px;min-height:0}
+.talent-intro{min-height:0}
+.share{height:280px;align-self:start;padding:20px 14px}
+.share span{margin-top:10px}
+.strategy{height:265px;padding:26px}
+.talent-right{grid-template-rows:repeat(3,minmax(0,1fr));gap:18px;min-height:0}
+.side{padding:26px;min-height:0}
+.side h2{font-size:23px;margin-bottom:14px}
+.side strong{font-size:38px}
+.side p{font-size:16px;line-height:1.45}
+.incentive-grid{height:710px}
+.incentive{padding:28px 30px;min-height:0}
+.incentive h2{font-size:25px;margin-bottom:18px;padding-bottom:12px}
+.incentive h3{font-size:18px}
+.incentive p{margin-bottom:18px;font-size:15px;line-height:1.4}
+.highlight{padding:22px 16px}
+.highlight strong{font-size:36px;margin-bottom:8px}
+.quote{margin-top:18px;padding:24px 18px;font-size:20px}
+.roi-card > .idx{display:flex;align-items:center;justify-content:center;margin:0;color:#fff;line-height:1;text-align:center}
+
+</style>
+</head>
+<body>
+<section class="slide">
+<span class="year">2024</span>
+<h1 class="title">High-potential talent identification and retention</h1>
+<div class="talent-layout">
+<section class="talent-left">
+<div class="talent-intro">
+<article class="card share">
+<strong>10%</strong>
+<b>Core high-potential group</b>
+<span>Performance-potential nine-box model</span>
+</article>
+<article class="assessment">
+<h2>⌁ Evidence-based assessment model</h2>
+<p>Past performance remains part of the assessment, but the model places greater weight on three forward-looking dimensions.</p>
+<div class="assess-row">
+<span>
+<i>01</i>▣ Learning agility</span>
+<span>
+<i>02</i>⟳ Adaptability to change</span>
+<span>
+<i>03</i>♟ Leadership potential</span>
+</div>
+</article>
+</div>
+<div class="strategy-block">
+<h2 class="green">◒ Targeted retention strategy</h2>
+<div class="strategy-grid">
+<article class="card strategy">
+<h3>♟ Executive mentorship</h3>
+<p>VP-level leaders hold regular career and development conversations with selected employees.</p>
+</article>
+<article class="card strategy">
+<h3>↔ Cross-functional rotations</h3>
+<p>Rotations broaden operating experience and strengthen business capability.</p>
+</article>
+<article class="card strategy">
+<h3>↑ Accelerated promotion path</h3>
+<p>Exceptional employees can advance based on readiness rather than tenure.</p>
+</article>
+</div>
+</div>
+</section>
+<aside class="talent-right">
+<article class="card side">
+<h2>◎ High productivity standard</h2>
+<strong>1.913</strong> million RMB revenue per employee<p>The target exceeds the national benchmark for large industrial enterprises.</p>
+</article>
+<article class="card side">
+<h2>♟ High-potential talent club</h2>
+<p>Cross-industry exchanges and advanced training strengthen belonging, recognition, and development.</p>
+</article>
+<article class="card side dark">
+<h2>
+<span class="gold">◔</span> Voluntary attrition target</h2>
+<strong>≤1%</strong> well below the industry average<p>Protect critical knowledge and maintain a reliable leadership pipeline.</p>
+</article>
+</aside>
+</div>
+</section>
+<section class="slide">
+<span class="year">2024</span>
+<h1 class="title">Supporting incentive system</h1>
+<div class="incentive-grid">
+<article class="card incentive">
+<h2>⌁ Long-term financial incentives</h2>
+<h3>Long-term equity incentives</h3>
+<p>Concentrate ESOP awards on critical roles and align employees with long-term company value.</p>
+<h3>◎ Bonus-pool redesign</h3>
+<p>Widen reward differences for top performers.</p>
+<div class="highlight">
+<strong>24.7%</strong>
+<span class="muted">Expected 2026 profit growth creates more value to share</span>
+</div>
+<div class="quote">Top performers receive meaningful rewards</div>
+</article>
+<article class="card incentive">
+<h2>◉ Differentiated and immediate incentives</h2>
+<h3>Multidimensional evaluation</h3>
+<p>Assess both financial results and company values.</p>
+<h3>▣ Immediate project awards</h3>
+<p>Recognize exceptional contributions without delaying payment.</p>
+<div class="highlight">
+<strong style="font-size:34px">Same-day awards</strong>
+<span class="muted">Timely recognition maximizes incentive value</span>
+</div>
+<div class="quote">Average performers feel pressure to improve</div>
+</article>
+<article class="card incentive">
+<h2>♥ Nonfinancial incentives and talent environment</h2>
+<h3>Broader nonfinancial rewards</h3>
+<p>Recognition and flexible work address different employee needs.</p>
+<h3>♻ Positive talent environment</h3>
+<p>Consistent feedback helps attract and retain leading talent.</p>
+<div class="highlight">
+<strong style="font-size:34px">Performance differentiation</strong>
+<span class="muted">A self-renewing organization rewards contribution</span>
+</div>
+<div class="quote">Exceptional employees receive respect</div>
+</article>
+</div>
+</section>
+<section class="slide">
+<span class="year">2024</span>
+<h1 class="title">Expected long-term ROI</h1>
+<div class="card roi-summary">
+<div>
+<small>Estimated total return</small>
+<strong>5-8x</strong>
+</div>
+<p>Long-term talent investment creates compounding returns.</p>
+<p>The program shifts the company from <b class="green">opportunity-driven</b> growth to <b class="green">capability-driven</b> growth.</p>
+</div>
+<div class="roi-grid">
+<article class="card roi-card">
+<span class="idx" data-pptx-shape data-pptx-text>01</span>
+<h2>♟ Talent-supply stability</h2>
+<strong>Tens of millions of RMB</strong>
+<span>Avoidable losses over three years</span>
+<ul>
+<li>Fill critical positions without long vacancy periods.</li>
+<li>Avoid daily losses caused by unfilled roles.</li>
+</ul>
+</article>
+<article class="card roi-card">
+<span class="idx" data-pptx-shape data-pptx-text>02</span>
+<h2>⌁ High-potential talent growth</h2>
+<strong>+30%</strong>
+<span>Expected improvement in new-project success</span>
+<ul>
+<li>Faster development supports new-business expansion.</li>
+<li>Internal leaders improve success and revenue.</li>
+</ul>
+</article>
+<article class="card roi-card">
+<span class="idx" data-pptx-shape data-pptx-text>03</span>
+<h2>▦ Organizational efficiency and valuation</h2>
+<strong>+15%-20%</strong>
+<span>Expected productivity improvement per employee</span>
+<ul>
+<li>Lower replacement costs and raise workforce efficiency.</li>
+<li>A stronger talent pipeline supports a valuation premium.</li>
+</ul>
+</article>
+</div>
+</section>
+</body>
+</html>

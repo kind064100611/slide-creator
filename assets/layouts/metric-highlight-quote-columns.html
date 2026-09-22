@@ -1,0 +1,24 @@
+<style data-layout-style="metric-highlight-quote-columns">
+    .slide[data-layout="metric-highlight-quote-columns"] .canvas { display:block; padding:3.78cqh 3cqw 3.3cqh; }
+    .slide[data-layout="metric-highlight-quote-columns"] .slide-header { display:block; height:auto; border-bottom:0; }
+    .slide[data-layout="metric-highlight-quote-columns"] .title { margin:0 0 3.1cqh; font-size:clamp(32px,2.38cqw,46px); line-height:1.1; font-weight:800; letter-spacing:0; }
+    .slide[data-layout="metric-highlight-quote-columns"] .title::before { display:inline-block; width:.44cqw; height:4.22cqh; margin-right:1.13cqw; border-radius:.13cqw; background:var(--accent-1); vertical-align:-.55cqh; content:""; }
+    .slide[data-layout="metric-highlight-quote-columns"] .year { position:absolute; top:5cqh; right:3cqw; padding:.67cqh .88cqw; border:1px solid var(--panel-line); border-radius:.31cqw; color:var(--muted); font-size:clamp(11px,.82cqw,16px); }
+    .slide[data-layout="metric-highlight-quote-columns"] .card { border:1px solid var(--panel-line); border-radius:.5cqw; background:var(--panel-background); box-shadow:0 8px 22px color-mix(in srgb,var(--accent-1) 10%,transparent); }
+    .slide[data-layout="metric-highlight-quote-columns"] .incentive-grid { display:grid; height:78.9cqh; grid-template-columns:repeat(3,1fr); gap:1.88cqw; }
+    .slide[data-layout="metric-highlight-quote-columns"] .incentive { display:flex; min-height:0; flex-direction:column; padding:3.1cqh 1.88cqw; }
+    .slide[data-layout="metric-highlight-quote-columns"] .incentive h2 { margin:0 0 2cqh; padding-bottom:1.33cqh; border-bottom:1px solid var(--line); color:var(--accent-1); font-size:clamp(21px,1.56cqw,30px); line-height:1.18; }
+    .slide[data-layout="metric-highlight-quote-columns"] .incentive h3 { margin:0 0 1.1cqh; font-size:clamp(15px,1.13cqw,22px); line-height:1.18; }
+    .slide[data-layout="metric-highlight-quote-columns"] .incentive p { margin:0 0 2cqh; color:var(--muted); font-size:clamp(12px,.94cqw,18px); line-height:1.4; }
+    .slide[data-layout="metric-highlight-quote-columns"] .highlight { margin-top:auto; padding:2.45cqh 1cqw; border-radius:.5cqw; background:var(--panel-2); text-align:center; }
+    .slide[data-layout="metric-highlight-quote-columns"] .highlight strong { display:block; margin-bottom:.88cqh; color:var(--accent-2); font-size:clamp(30px,2.25cqw,43px); line-height:1.05; }
+    .slide[data-layout="metric-highlight-quote-columns"] .highlight span { color:var(--muted); font-size:clamp(12px,.88cqw,17px); line-height:1.28; }
+    .slide[data-layout="metric-highlight-quote-columns"] .quote { margin-top:2cqh; padding:2.67cqh 1.13cqw; border-radius:.5cqw; background:var(--accent-1); color:var(--ink); font-size:clamp(17px,1.25cqw,24px); font-weight:800; line-height:1.25; text-align:center; }
+    .slide[data-layout="metric-highlight-quote-columns"] .deck-foot { position:absolute; right:3cqw; bottom:1.1cqh; left:3cqw; min-height:0; color:var(--muted); }
+</style>
+<!-- Fixed skeleton: three peer incentive columns; each column owns a heading, two evidence subsections, one highlighted value/caption, and one outcome quote. Repeat only incentive columns. -->
+<section id="{{SLIDE_ID}}" class="slide" data-layout="metric-highlight-quote-columns" aria-label="{{SLIDE_LABEL}}"><article class="canvas"><span class="rail" data-pptx-shape aria-hidden="true"></span>
+  <header class="slide-header compact slide-section" data-pptx-shape><span class="year">{{YEAR}}</span><h1 class="title">{{TITLE}}</h1></header>
+  <div class="incentive-grid" data-layout-repeat="incentive-columns" data-layout-count="{{COLUMN_COUNT}}" data-layout-item-tag="article" data-layout-item-class="incentive" data-layout-item-roles="incentive-title incentive-subsection-one incentive-subsection-two highlight quote">{{COLUMNS}}</div>
+  <footer class="deck-foot"><p>{{FOOTER_NOTE}}</p><p>{{PAGE_COUNTER}}</p></footer>
+</article></section>

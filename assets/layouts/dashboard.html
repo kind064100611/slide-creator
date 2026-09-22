@@ -1,0 +1,47 @@
+<style data-layout-style="dashboard">
+    .slide[data-layout="dashboard"] .dashboard-callout { display:flex; flex:0 0 16cqh; align-items:center; padding-top:.8cqh; padding-bottom:1.6cqh; }
+    .slide[data-layout="dashboard"] .dashboard-callout-inner { padding-left:1.55cqw; border-left:.62cqw solid var(--accent-2); }
+    .slide[data-layout="dashboard"] .dashboard-callout h2 { margin:0 0 .9cqh; color:var(--accent-2); font-size:clamp(18px,1.55cqw,30px); line-height:1.08; }
+    .slide[data-layout="dashboard"] .dashboard-callout p { max-width:81cqw; margin:0; font-size:clamp(12px,1.25cqw,24px); line-height:1.34; }
+    .slide[data-layout="dashboard"] .dashboard-metrics { display:grid; flex:0 0 25cqh; grid-template-columns:minmax(0,3.1fr) minmax(18cqw,.9fr); gap:2.6cqw; align-items:center; }
+    .slide[data-layout="dashboard"] .dashboard-metric-peers { display:grid; grid-template-columns:repeat(var(--metric-count),minmax(0,1fr)); gap:1.45cqw; }
+    .slide[data-layout="dashboard"] .dashboard-metric-peers > div:has(.dashboard-metric-value:empty) { display:none; }
+    .slide[data-layout="dashboard"] .dashboard-metric-value { display:block; margin:0; color:var(--accent-2); font-size:clamp(22px,2.25cqw,42px); font-weight:790; letter-spacing:-.04em; line-height:1; }
+    .slide[data-layout="dashboard"] .dashboard-metric-value.negative { color:var(--negative); }
+    .slide[data-layout="dashboard"] .dashboard-metric-label { margin:1cqh 0 0; color:var(--muted); font-size:clamp(10px,.98cqw,19px); font-weight:710; line-height:1.3; }
+    .slide[data-layout="dashboard"] .dashboard-metric-note { margin:1.1cqh 0 2.3cqh; color:var(--quiet); font-size:clamp(9px,.8cqw,16px); }
+    .slide[data-layout="dashboard"] .dashboard-metric-rule { height:.55cqh; background:var(--accent-2); }
+    .slide[data-layout="dashboard"] .dashboard-metric-rule.negative { background:var(--negative); }
+    .slide[data-layout="dashboard"] .dashboard-comparison { width:100%; max-width:24cqw; align-self:stretch; justify-self:end; padding-top:4.5cqh; }
+    .slide[data-layout="dashboard"] .dashboard-comparison-row + .dashboard-comparison-row { margin-top:3.1cqh; }
+    .slide[data-layout="dashboard"] .dashboard-comparison-line { display:flex; justify-content:space-between; gap:1cqw; margin-bottom:1.65cqh; }
+    .slide[data-layout="dashboard"] .dashboard-comparison-label,.slide[data-layout="dashboard"] .dashboard-comparison-value { margin:0; font-size:clamp(10px,.92cqw,18px); font-weight:720; }
+    .slide[data-layout="dashboard"] .dashboard-comparison-label { color:var(--muted); }
+    .slide[data-layout="dashboard"] .dashboard-comparison-value { color:var(--accent-2); }
+    .slide[data-layout="dashboard"] .dashboard-comparison-value.secondary { color:var(--accent-1); }
+    .slide[data-layout="dashboard"] .dashboard-bar { height:1.22cqh; overflow:hidden; background:var(--track); }
+    .slide[data-layout="dashboard"] .dashboard-bar span { display:block; height:100%; background:var(--accent-2); }
+    .slide[data-layout="dashboard"] .dashboard-bar span.secondary { background:var(--accent-1); }
+    .slide[data-layout="dashboard"] .dashboard-comparison-note { margin:2.15cqh 0 0; color:var(--quiet); font-size:clamp(9px,.77cqw,15px); line-height:1.28; }
+    .slide[data-layout="dashboard"] .dashboard-details { display:grid; flex:0 0 26cqh; grid-template-columns:1fr 1fr; gap:6.2cqw; align-content:center; align-items:center; }
+    .slide[data-layout="dashboard"] .dashboard-detail { min-height:16cqh; padding-left:1.25cqw; border-left:.54cqw solid var(--negative); }
+    .slide[data-layout="dashboard"] .dashboard-detail.secondary { border-left-color:var(--positive); }
+    .slide[data-layout="dashboard"] .dashboard-detail h3 { margin:-.4cqh 0 2.3cqh; font-size:clamp(16px,1.55cqw,30px); }
+    .slide[data-layout="dashboard"] .dashboard-detail-list { display:grid; gap:1.1cqh; margin:0; padding-left:1.2cqw; color:var(--muted); }
+    .slide[data-layout="dashboard"] .dashboard-detail-list li { font-size:clamp(10px,.96cqw,19px); line-height:1.24; }
+</style>
+<section id="{{SLIDE_ID}}" class="slide" data-layout="dashboard" aria-label="{{SLIDE_LABEL}}"><article class="canvas"><span class="rail" data-pptx-shape aria-hidden="true"></span>
+  <!-- Binding contract: when this is the first content slide and no cover exists, TITLE is the source document heading. HEADER_METADATA contains only source-authored subject, owner, provenance, date, or scope. Optional pills may carry concise source-authored deadline or amount facts that are not repeated below. CALLOUT_TITLE and CALLOUT_BODY carry the owning section's assessment and lead. -->
+  <header class="slide-header compact slide-section" data-pptx-shape><div><h1>{{TITLE}}</h1><p class="subtitle">{{HEADER_METADATA}}</p></div><div class="pills" aria-label="{{PILLS_LABEL}}">{{PILLS}}</div></header>
+  <section class="dashboard-callout slide-section" data-pptx-shape data-geometry-min-divider-gap="8"><div class="dashboard-callout-inner"><h2>{{CALLOUT_TITLE}}</h2><p>{{CALLOUT_BODY}}</p></div></section>
+  <!-- Metrics accept independent measurements that directly support the owning assessment. Repeat only the complete dashboard-metric node and set METRIC_COUNT from the authored peers; never add an unrelated card type. Inside each metric, VALUE owns the number, LABEL owns the subject, and NOTE owns only a distinct qualifier or provenance. If extra peers fail the geometry floor, split at a source-owned boundary. -->
+  <section class="dashboard-metrics slide-section" data-metric-count="{{METRIC_COUNT}}" style="--metric-count:{{METRIC_COUNT}}" data-pptx-shape aria-label="{{METRICS_LABEL}}">
+    <div class="dashboard-metric-peers" data-layout-repeat="dashboard-metric-peers" data-layout-count="{{METRIC_COUNT}}" data-layout-item-tag="div" data-layout-item-class="dashboard-metric" data-layout-item-roles="dashboard-metric-value dashboard-metric-label dashboard-metric-note dashboard-metric-rule">{{METRICS}}</div>
+    <!-- Comparison values preserve exact visible source tokens. Widths use separate numeric geometry values on the natural 0-100 percentage scale; never normalize them against the largest observation. -->
+    <div class="dashboard-comparison" data-bar-scale="0-100"><div class="dashboard-comparison-row"><div class="dashboard-comparison-line"><p class="dashboard-comparison-label">{{COMPARISON_1_LABEL}}</p><p class="dashboard-comparison-value">{{COMPARISON_1_VALUE}}</p></div><div class="dashboard-bar" data-pptx-shape><span style="width:{{COMPARISON_1_WIDTH}}"></span></div></div><div class="dashboard-comparison-row"><div class="dashboard-comparison-line"><p class="dashboard-comparison-label">{{COMPARISON_2_LABEL}}</p><p class="dashboard-comparison-value secondary">{{COMPARISON_2_VALUE}}</p></div><div class="dashboard-bar" data-pptx-shape><span class="secondary" style="width:{{COMPARISON_2_WIDTH}}"></span></div></div><p class="dashboard-comparison-note">{{COMPARISON_CONTEXT}}</p></div>
+  </section>
+  <!-- Detail regions prefer explicit source-authored compact summary groups over earlier verbose evidence groups that the summaries already cover. When the source provides a compact risk/issue summary and a compact action/decision summary, bind those two groups here and leave full evidence or implementation detail to its later owning section. Preserve their headings and unique clauses; do not invent a new summary. -->
+  <section class="dashboard-details slide-section" data-pptx-shape><div class="dashboard-detail"><h3>{{DETAIL_1_TITLE}}</h3><ol class="dashboard-detail-list ordered">{{DETAIL_1_ITEMS}}</ol></div><div class="dashboard-detail secondary"><h3>{{DETAIL_2_TITLE}}</h3><ul class="dashboard-detail-list">{{DETAIL_2_ITEMS}}</ul></div></section>
+  <!-- FOOTER_NOTE is the sole owner of a source-authored terminal action/note placed at the page edge. Once bound here, that sentence must not also appear in either detail list or any other body region. Remove its text when it only repeats metadata, pills, the callout, a metric, comparison, or detail group. -->
+  <footer class="deck-foot"><p>{{FOOTER_NOTE}}</p><!-- PAGE_COUNTER is generated from final slide order, for example 1 / 3. --><p>{{PAGE_COUNTER}}</p></footer>
+</article></section>

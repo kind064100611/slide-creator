@@ -1,0 +1,36 @@
+<style data-layout-style="metric-summary-history-cards">
+    .slide[data-layout="metric-summary-history-cards"] .canvas { display:block; padding:4.22cqh 3cqw 3.1cqh; }
+    .slide[data-layout="metric-summary-history-cards"] .slide-header { display:block; height:auto; border-bottom:0; }
+    .slide[data-layout="metric-summary-history-cards"] .title { margin:0 0 2.67cqh; font-size:clamp(32px,2.44cqw,47px); line-height:1.1; font-weight:800; letter-spacing:0; }
+    .slide[data-layout="metric-summary-history-cards"] .title::before { display:inline-block; width:.31cqw; height:3.67cqh; margin-right:1.13cqw; background:var(--accent-1); vertical-align:-.33cqh; content:""; }
+    .slide[data-layout="metric-summary-history-cards"] .card { border:1px solid var(--panel-line); border-radius:.44cqw; background:var(--panel-background); box-shadow:0 8px 22px color-mix(in srgb,var(--accent-1) 10%,transparent); }
+    .slide[data-layout="metric-summary-history-cards"] .summary { display:grid; height:24.45cqh; grid-template-columns:21.25cqw 1fr; align-items:center; padding:4.22cqh 3.38cqw; }
+    .slide[data-layout="metric-summary-history-cards"] .weight { padding-right:3.13cqw; border-right:1px solid var(--line); }
+    .slide[data-layout="metric-summary-history-cards"] .weight strong { display:block; color:var(--accent-1); font-size:clamp(58px,4.38cqw,84px); line-height:1; }
+    .slide[data-layout="metric-summary-history-cards"] .weight span { color:var(--muted); font-size:clamp(18px,1.38cqw,26px); font-weight:700; line-height:1.2; }
+    .slide[data-layout="metric-summary-history-cards"] .summary ul { margin:0; padding-left:3.45cqw; color:var(--ink); font-size:clamp(16px,1.18cqw,23px); line-height:1.65; }
+    .slide[data-layout="metric-summary-history-cards"] .summary li { margin-bottom:1.1cqh; }
+    .slide[data-layout="metric-summary-history-cards"] .history-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.75cqw; margin-top:3.33cqh; }
+    .slide[data-layout="metric-summary-history-cards"] .history { height:57.2cqh; padding:3.33cqh 1.75cqw; }
+    .slide[data-layout="metric-summary-history-cards"] .history h2 { margin:0 0 3.33cqh; color:var(--accent-1); font-size:clamp(20px,1.5cqw,29px); line-height:1.2; }
+    .slide[data-layout="metric-summary-history-cards"] .metric-panel { height:25.55cqh; padding:4cqh 1.4cqw; border-radius:.38cqw; background:var(--panel-2); text-align:center; }
+    .slide[data-layout="metric-summary-history-cards"] .metric-panel small { display:block; font-size:clamp(15px,1.13cqw,22px); line-height:1.25; }
+    .slide[data-layout="metric-summary-history-cards"] .metric-panel strong { display:block; margin:2cqh 0; color:var(--accent-1); font-size:clamp(38px,2.88cqw,55px); line-height:1.05; }
+    .slide[data-layout="metric-summary-history-cards"] .metric-panel .split-primary {  font-size:clamp(32px,2.38cqw,46px); }
+    .slide[data-layout="metric-summary-history-cards"] .metric-panel .split-unit { display:inline; font-size:clamp(14px,1cqw,19px); }
+    .slide[data-layout="metric-summary-history-cards"] .metric-panel span { color:var(--muted); font-size:clamp(13px,1cqw,19px); line-height:1.25; }
+    .slide[data-layout="metric-summary-history-cards"] .metric-split { display:grid; grid-template-columns:1fr 1fr; align-items:center; margin:1.5cqh 0; }
+    .slide[data-layout="metric-summary-history-cards"] .metric-split > span { display:grid; gap:.55cqh; place-items:center; }
+    .slide[data-layout="metric-summary-history-cards"] .metric-split > span + span { border-left:1px solid var(--line); }
+    .slide[data-layout="metric-summary-history-cards"] .metric-split strong { margin:0; }
+    .slide[data-layout="metric-summary-history-cards"] .history ul { margin:0; padding-left:1.38cqw; color:var(--muted); font-size:clamp(14px,1.06cqw,20px); line-height:1.55; }
+    .slide[data-layout="metric-summary-history-cards"] .history li { margin:2.45cqh 0; }
+    .slide[data-layout="metric-summary-history-cards"] .deck-foot { position:absolute; right:3cqw; bottom:1.1cqh; left:3cqw; min-height:0; color:var(--muted); }
+</style>
+<!-- Fixed skeleton: one metric-leading summary band with a bullet list, followed by repeatable homogeneous history/evidence cards; each card owns a title, metric panel, and bullet list. A source-authored two-value comparison inside a metric panel uses one metric-split with two separately labeled spans and one divider; never flatten it into slash-delimited text. Repeat only history cards. -->
+<section id="{{SLIDE_ID}}" class="slide" data-layout="metric-summary-history-cards" aria-label="{{SLIDE_LABEL}}"><article class="canvas"><span class="rail" data-pptx-shape aria-hidden="true"></span>
+  <header class="slide-header compact slide-section" data-pptx-shape><h1 class="title">{{TITLE}}</h1></header>
+  <div class="card summary" data-pptx-shape data-geometry-contain-content>{{SUMMARY}}</div>
+  <div class="history-grid" data-layout-repeat="history-cards" data-layout-count="{{CARD_COUNT}}" data-layout-item-tag="article" data-layout-item-class="history" data-layout-item-roles="history-title metric-panel history-list">{{CARDS}}</div>
+  <footer class="deck-foot"><p>{{FOOTER_NOTE}}</p><p>{{PAGE_COUNTER}}</p></footer>
+</article></section>

@@ -1,0 +1,42 @@
+<style data-layout-style="metric-grid-support-warning">
+    .slide[data-layout="metric-grid-support-warning"] .canvas { display:block; padding:4cqh 3cqw 3.3cqh; }
+    .slide[data-layout="metric-grid-support-warning"] .slide-header { display:block; height:auto; border-bottom:0; }
+    .slide[data-layout="metric-grid-support-warning"] .title { margin:0 0 3.3cqh; font-size:clamp(34px,2.56cqw,49px); line-height:1.1; font-weight:800; letter-spacing:0; }
+    .slide[data-layout="metric-grid-support-warning"] .title::before { display:inline-block; width:.38cqw; height:3.35cqh; margin-right:1.06cqw; background:var(--accent-1); vertical-align:-.22cqh; box-shadow:.38cqw 1.33cqh 0 -.06cqw var(--negative); content:""; }
+    .slide[data-layout="metric-grid-support-warning"] .panel { border:1px solid var(--panel-line); border-radius:.38cqw; background:var(--panel-background); }
+    .slide[data-layout="metric-grid-support-warning"] .loss-top { display:grid; height:22.8cqh; grid-template-columns:1.4fr minmax(0,2.4fr); align-items:center; gap:0; margin-top:.45cqh; padding:4cqh 2.88cqw; }
+    .slide[data-layout="metric-grid-support-warning"] .loss-main { padding-right:1.88cqw; border-right:.25cqw solid var(--accent-1); }
+    .slide[data-layout="metric-grid-support-warning"] .loss-main small { display:block; color:var(--muted); font-size:clamp(18px,1.38cqw,26px); }
+    .slide[data-layout="metric-grid-support-warning"] .loss-main strong { color:var(--negative); font-size:clamp(53px,4cqw,77px); line-height:1; }
+    .slide[data-layout="metric-grid-support-warning"] .loss-main .unit { display:inline; color:var(--negative); font-size:clamp(16px,1.25cqw,24px); }
+    .slide[data-layout="metric-grid-support-warning"] .loss-facts { display:grid; min-width:0; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:center; gap:1.88cqw; padding-left:1.88cqw; }
+    .slide[data-layout="metric-grid-support-warning"] .loss-fact { min-height:10cqh; padding:1.1cqh 0; }
+    .slide[data-layout="metric-grid-support-warning"] .loss-fact strong { display:block; font-size:clamp(32px,2.5cqw,48px); line-height:1.1; }
+    .slide[data-layout="metric-grid-support-warning"] .loss-fact span { color:var(--muted); font-size:clamp(13px,1cqw,19px); }
+    .slide[data-layout="metric-grid-support-warning"] .loss-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.63cqw; margin-top:3.1cqh; }
+    .slide[data-layout="metric-grid-support-warning"] .loss-card { height:27.2cqh; padding:3.9cqh 2.2cqw; }
+    .slide[data-layout="metric-grid-support-warning"] .loss-card h2 { margin:0 0 1.2cqh; color:var(--accent-1); font-size:clamp(18px,1.38cqw,26px); line-height:1.2; }
+    .slide[data-layout="metric-grid-support-warning"] .loss-card strong { display:block;  font-size:clamp(35px,2.68cqw,52px); line-height:1.1; }
+    .slide[data-layout="metric-grid-support-warning"] .loss-card p { margin:1.2cqh 0 0; color:var(--muted); font-size:clamp(13px,1cqw,19px); line-height:1.5; }
+    .slide[data-layout="metric-grid-support-warning"] .brand-row { display:grid; grid-template-columns:2fr 1fr; gap:1.63cqw; margin-top:3.1cqh; }
+    .slide[data-layout="metric-grid-support-warning"] .brand { height:18.35cqh; padding:3.1cqh 1.75cqw; }
+    .slide[data-layout="metric-grid-support-warning"] .brand-title { margin:0 0 1.1cqh; color:var(--ink); font-size:clamp(15px,1.12cqw,21px); font-weight:760; line-height:1.2; }
+    .slide[data-layout="metric-grid-support-warning"] .brand-metrics { display:flex; justify-content:space-between; gap:1.2cqw; }
+    .slide[data-layout="metric-grid-support-warning"] .brand-metrics strong { color:var(--negative); font-size:clamp(30px,2.3cqw,44px); line-height:1; }
+    .slide[data-layout="metric-grid-support-warning"] .brand-metrics span,.slide[data-layout="metric-grid-support-warning"] .brand p { color:var(--muted); font-size:clamp(12px,.88cqw,17px); line-height:1.3; }
+    .slide[data-layout="metric-grid-support-warning"] .brand .red { color:var(--negative); font-size:clamp(31px,2.38cqw,46px); line-height:1; }
+    .slide[data-layout="metric-grid-support-warning"] .warning { margin-top:2.2cqh; padding:1.45cqh; border:1px solid color-mix(in srgb,var(--negative) 45%,var(--panel-line)); border-radius:.38cqw; background:color-mix(in srgb,var(--negative) 18%,var(--panel-2)); color:var(--ink); font-size:clamp(15px,1.13cqw,22px); line-height:1.25; text-align:center; }
+    .slide[data-layout="metric-grid-support-warning"] .warning-label { color:var(--negative); }
+    .slide[data-layout="metric-grid-support-warning"] .warning-copy { margin-left:.35cqw; }
+    .slide[data-layout="metric-grid-support-warning"] .red { color:var(--negative); }
+    .slide[data-layout="metric-grid-support-warning"] .deck-foot { position:absolute; right:3cqw; bottom:1.1cqh; left:3cqw; min-height:0; color:var(--muted); }
+</style>
+<!-- Fixed skeleton: a top quantified loss strip with exactly one divider between one loss-main and one loss-facts group, four homogeneous peer loss cards, one supporting row with a compound multi-metric brand card plus one single recovery-cost card, and one warning band. Labels and warning copy are fixed-role ordinary text, never headings. Emit only loss-fact, loss-card, and brand-metric direct children that satisfy their declared item contracts. -->
+<section id="{{SLIDE_ID}}" class="slide" data-layout="metric-grid-support-warning" aria-label="{{SLIDE_LABEL}}"><article class="canvas"><span class="rail" data-pptx-shape aria-hidden="true"></span>
+  <header class="slide-header compact slide-section" data-pptx-shape><h1 class="title">{{TITLE}}</h1></header>
+  <div class="panel loss-top" data-pptx-shape data-geometry-contain-content><div class="loss-main"><small class="loss-main-label">{{LOSS_LABEL}}</small><strong class="loss-main-value">{{LOSS_VALUE}}</strong><span class="unit">{{LOSS_UNIT}}</span></div><div class="loss-facts" data-layout-repeat="loss-facts" data-layout-count="{{LOSS_FACT_COUNT}}" data-layout-item-tag="div" data-layout-item-class="loss-fact" data-layout-item-roles="loss-fact-value loss-fact-label">{{LOSS_FACTS}}</div></div>
+  <div class="loss-grid" data-layout-repeat="loss-cards" data-layout-count="{{LOSS_CARD_COUNT}}" data-layout-item-tag="article" data-layout-item-class="loss-card" data-layout-item-roles="loss-card-title loss-card-value loss-card-copy">{{LOSS_CARDS}}</div>
+  <div class="brand-row"><article class="panel brand" data-pptx-shape data-geometry-contain-content><p class="brand-title">{{COMPOUND_TITLE}}</p><div class="brand-metrics" data-layout-repeat="brand-metrics" data-layout-count="{{COMPOUND_METRIC_COUNT}}" data-layout-item-tag="span" data-layout-item-class="brand-metric" data-layout-item-roles="brand-metric-value brand-metric-label">{{COMPOUND_METRICS}}</div></article><article class="panel brand" data-pptx-shape data-geometry-contain-content><p class="brand-title">{{SUPPORT_TITLE}}</p><strong class="red">{{SUPPORT_VALUE}}</strong><p>{{SUPPORT_COPY}}</p></article></div>
+  <div class="warning" data-pptx-shape data-geometry-contain-content><strong class="warning-label">{{WARNING_LABEL}}</strong><span class="warning-copy">{{WARNING_BODY}}</span></div>
+  <footer class="deck-foot"><p>{{FOOTER_NOTE}}</p><p>{{PAGE_COUNTER}}</p></footer>
+</article></section>

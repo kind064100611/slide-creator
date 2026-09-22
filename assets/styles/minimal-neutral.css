@@ -1,0 +1,25 @@
+    :root {
+      color-scheme:light;
+      --body-bg:#e7e4de;
+      --canvas-background:#f8f6f1;
+      --font-family:Aptos,Arial,sans-serif;
+      --ink:#20262e;
+      --muted:#59636d;
+      --quiet:#7b858e;
+      --line:#d8d3ca;
+      --panel-2:#ece8e0;
+      --panel-line:#d3cdc2;
+      --panel-background:#f2efe9;
+      --pill-bg:#26384c;
+      --pill-ink:#ffffff;
+      --pill-border:0 solid transparent;
+      --chip-line:#8a969f;
+      --chip-ink:#52606a;
+      --rail-background:#26384c;
+      --accent-1:#365f7d;
+      --accent-2:#a56f2a;
+      --accent-3:#4b735f;
+      --negative:#a94c58;
+      --positive:#4b735f;
+      --track:#d9d4ca;
+    }

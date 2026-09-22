@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Double 11 Incident Review - Reference HTML</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#343941;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;color:#f4f7ff}
+body{display:flex;flex-direction:column;align-items:center;gap:28px;padding:12px}
+.slide{position:relative;width:1600px;height:900px;overflow:hidden;background:#0d1627;padding:36px 48px 30px}
+.slide:before{content:"";position:absolute;left:26px;bottom:18px;width:12px;height:12px;border:1px solid #29466d}
+.slide:after{content:"";position:absolute;right:34px;bottom:20px;width:34px;border-top:2px solid #257ff0;box-shadow:12px 7px 0 -1px #ff4550}
+.title{margin:0 0 30px;font-size:41px;line-height:1.1;font-weight:800}
+.title:before{content:"";display:inline-block;width:6px;height:30px;margin-right:17px;background:#2c91ff;vertical-align:-2px;box-shadow:6px 12px 0 -1px #ff3d4d}
+.muted{color:#91a0b9}
+.blue{color:#2f8cff}
+.red{color:#ff414b}
+.panel{background:#182238;border:1px solid #2a3d5d;border-radius:6px}
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:38px;margin:105px 46px 0}
+.time-step{position:relative}
+.time-step:before{content:"";position:absolute;top:-28px;left:0;right:0;border-top:2px solid #496480}
+.time-step:after{content:"";position:absolute;top:-34px;left:0;width:14px;height:14px;border-radius:50%;background:#2f8cff}
+.time-step.alert:before{border-color:#ff414b}
+.time-step.alert:after{background:#ff414b}
+.time-step time{font-size:23px;color:#2f8cff;font-weight:800}
+.time-step.alert time{color:#ff414b}
+.time-step h2{font-size:23px;margin:10px 0 18px}
+.chip{height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px;border:1px solid #365178;border-radius:6px;background:#182238;color:#93a1b8;font-size:15px}
+.chip strong{font-size:29px;color:#fff}
+.chip.alert{border-color:#6b2c3b}
+.chip.alert strong{color:#ff414b}
+.time-step p{font-size:16px;color:#91a0b9;line-height:1.55}
+.conclusion{position:absolute;left:48px;right:48px;bottom:50px;height:165px;display:grid;grid-template-columns:185px 1fr 360px;align-items:center;padding:24px 38px;border-left:6px solid #2f8cff;background:#182238;border-radius:6px}
+.conclusion h2{font-size:26px}
+.chain{display:flex;align-items:center;gap:16px}
+.chain b{padding:13px 20px;border-radius:8px;background:#203c69;color:#2f8cff}
+.chain b:nth-of-type(n+2){background:#4b2535;color:#ff414b}
+.chain i{font-size:27px;color:#72839d}
+.conclusion p{font-size:16px;color:#91a0b9;line-height:1.55}
+.loss-top{display:grid;grid-template-columns:1.4fr 2.4fr;height:205px;margin-top:4px;padding:36px 46px;align-items:center;gap:0}
+.loss-main{border-right:4px solid #397de5;padding-right:30px}
+.loss-main small{display:block;color:#91a0b9;font-size:22px}
+.loss-main strong{font-size:64px;color:#ff414b}
+.loss-facts{display:grid;grid-template-columns:repeat(3,1fr);align-items:center;gap:30px;padding-left:30px}
+.loss-fact{padding:0}
+.loss-fact strong{display:block;font-size:40px}
+.loss-fact span{color:#91a0b9}
+.loss-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:28px}
+.loss-card{height:245px;padding:35px}
+.loss-card h2{color:#2f8cff;font-size:22px}
+.loss-card strong{font-size:43px}
+.loss-card p{color:#91a0b9;font-size:16px;line-height:1.5}
+.brand-row{display:grid;grid-template-columns:2fr 1fr;gap:26px;margin-top:28px}
+.brand{height:165px;padding:28px}
+.brand h2{font-size:21px}
+.brand-metrics{display:flex;justify-content:space-between}
+.brand-metrics strong{color:#ff414b;font-size:37px}
+.warning{margin-top:20px;padding:13px;border:1px solid #702e3c;background:#2c1b2c;border-radius:6px;text-align:center;color:#fff;font-size:18px}
+.root-banner{height:175px;padding:34px 44px;border-left:8px solid #ff414b;display:grid;grid-template-columns:190px repeat(3,1fr);gap:36px;align-items:center}
+.root-banner h2{font-size:28px;color:#ff414b}
+.root-banner p{font-size:19px;line-height:1.5}
+.section-label{margin:34px 0 20px;color:#2f8cff;font-size:25px}
+.process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:25px}
+.process{height:195px;padding:30px}
+.process h3{font-size:21px}
+.process h3 em{font-size:29px;color:#6e7f98;margin-right:12px}
+.process.hot{border-color:#803541}
+.process.hot h3,.process.hot h3 em{color:#ff414b}
+.process p{color:#91a0b9;font-size:16px;line-height:1.5}
+.review-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:25px}
+.review{height:180px;padding:30px;border-top:5px solid #2f8cff}
+.review:first-child{border-top-color:#ff414b}
+.review:last-child{border-top-color:#70819b}
+.review h3{font-size:21px}
+.review p{color:#91a0b9;font-size:16px;line-height:1.5}
+.db-top{display:grid;grid-template-columns:1.25fr repeat(3,.8fr);gap:24px}
+.db-metric{height:158px;padding:32px}
+.db-metric.danger{border-left:7px solid #ff414b}
+.db-metric h2{font-size:25px}
+.db-metric strong{display:block;font-size:38px;color:#2f8cff}
+.db-metric.danger strong,.db-metric.red strong{color:#ff414b}
+.db-metric p{color:#91a0b9;margin:10px 0}
+.db-main{display:grid;grid-template-columns:1fr 1.35fr;gap:25px;margin-top:30px}
+.mechanism{height:480px;padding:34px}
+.mechanism h2{font-size:23px}
+.flow-box{width:70%;margin:16px auto;padding:16px;text-align:center;border:1px solid #2f8cff;border-radius:6px}
+.flow-box.bad{border-color:#ff414b;color:#ff414b}
+.down{height:22px;text-align:center;color:#60718d;font-size:24px}
+.db-notes{display:grid;grid-template-rows:repeat(3,1fr);gap:18px}
+.db-note{padding:30px;display:grid;grid-template-columns:62px 1fr;align-items:center}
+.db-note b{display:grid;place-items:center;width:52px;height:58px;border-radius:7px;background:#203b68;color:#2f8cff;font-size:24px}
+.db-note:last-child b{background:#54293b;color:#ff414b}
+.db-note h2{font-size:23px;margin:0 0 8px}
+.db-note p{margin:0;color:#91a0b9;font-size:16px;line-height:1.5}
+.control-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin:78px 0 0}
+.control{height:440px;padding:36px;border-top:4px solid #2f8cff}
+.control:nth-child(2){border-top-color:#ffb347}
+.control:nth-child(3){border-top-color:#4bd99b}
+.control .idx{display:block;font-size:44px;color:#2f8cff;font-weight:900;font-style:italic}
+.control h2{font-size:24px}
+.control ul{padding-left:24px;color:#91a0b9;font-size:17px;line-height:1.65}
+.control-goal{margin-top:28px;padding:18px;border:1px solid #1c4074;border-radius:7px;text-align:center;color:#2f8cff;font-weight:800}
+.quality{position:absolute;left:48px;right:48px;bottom:62px;height:125px;display:grid;place-items:center;border:1px solid #2a5da0;border-left:6px solid #2f8cff;background:#182238;border-radius:6px;text-align:center;font-size:24px}
+.quality small{display:block;margin-top:14px;color:#91a0b9;font-size:18px}
+.response-flow{display:grid;grid-template-columns:1fr 1.25fr 1fr 1fr;gap:52px;align-items:center;margin:92px 25px 0}
+.response-card{position:relative;height:390px;padding:36px 30px;text-align:center}
+.response-card:not(:last-child):after{content:"→";position:absolute;right:-44px;top:170px;color:#6f8099;font-size:40px}
+.response-card.core{height:460px;border:2px solid #ff414b;box-shadow:0 0 20px rgba(255,65,75,.18)}
+.badge{display:inline-block;padding:9px 18px;border-radius:7px;background:#203b68;color:#2f8cff;font-weight:800}
+.core .badge{border-radius:20px;background:#ff414b;color:#fff}
+.response-card .icon{display:grid;place-items:center;width:72px;height:72px;margin:30px auto;border-radius:50%;background:#1a3158;color:#2f8cff;font-size:34px}
+.core .icon{color:#ff414b;background:#3d2435}
+.response-card h2{font-size:25px}
+.core h2{color:#ff414b}
+.response-card p{color:#91a0b9;font-size:17px;line-height:1.6}
+.sla{display:grid;gap:6px;margin:22px 0}
+.sla span{display:flex;justify-content:space-between;padding:10px 18px;background:#382337;border:1px solid #713440;border-radius:3px}
+.response-bottom{position:absolute;left:48px;right:48px;bottom:50px;height:135px;display:grid;grid-template-columns:350px 1fr;gap:40px;align-items:center;padding:28px 54px;border-left:6px solid #2f8cff;background:#182238}
+.mttr small{display:block;color:#91a0b9;font-size:17px}
+.mttr strong{font-size:38px;color:#00c083}
+.mttr del{color:#ff414b}
+.response-bottom p{color:#dfe5f1;font-size:18px;line-height:1.7}
+.response-bottom b{color:#2f8cff}
+
+.response-card.core{height:505px;padding:24px 30px}
+.response-card .icon{margin:20px auto}
+.sla{margin:12px 0}
+.response-card p{margin:8px 0;font-size:16px;line-height:1.4}
+.response-card.core p{font-size:15px;line-height:1.3}
+.brand h2{margin:0 0 10px}
+.brand p{margin:8px 0;font-size:14px;line-height:1.3}
+.db-metric{padding:24px 28px}
+.db-metric h2{margin:0 0 8px}
+.db-metric strong{font-size:34px}
+.db-metric p{font-size:15px;line-height:1.35}
+.mechanism{padding:28px 34px}
+.mechanism h2{margin:0 0 12px}
+.mechanism .flow-box{margin:11px auto;padding:12px 16px}
+.mechanism .down{height:18px;font-size:20px;line-height:18px}
+.control{padding:30px}
+.control h2{margin:14px 0}
+.control ul{font-size:16px;line-height:1.48}
+
+</style>
+</head>
+<body>
+<section class="slide">
+<h1 class="title">Macro view of the failure timeline</h1>
+<div class="timeline">
+<article class="time-step">
+<time>00:00:00</time>
+<h2>Traffic flood</h2>
+<div class="chip alert">
+<strong>45x</strong>Concurrent requests</div>
+<div class="chip alert">
+<strong>2.5 s</strong>Core API response, from 50 ms</div>
+<p>The midnight promotion created an immediate traffic surge and sharply degraded the core trading API.</p>
+</article>
+<article class="time-step alert">
+<time>00:02:15</time>
+<h2>Circuit breaking</h2>
+<div class="chip alert">
+<strong>&gt;98%</strong>CPU utilization</div>
+<div class="chip alert">
+<strong>Instant</strong>Thread-pool exhaustion</div>
+<p>An infinite loop triggered circuit breaking and widespread order-service timeouts.</p>
+</article>
+<article class="time-step alert">
+<time>00:05:40</time>
+<h2>Cascading spread</h2>
+<div class="chip alert">
+<strong>Bottomed out</strong>DB connections</div>
+<div class="chip alert">
+<strong>Blocked</strong>Core trading path</div>
+<p>Blocked threads held resources, row-lock contention spread, and users received system-busy errors.</p>
+</article>
+<article class="time-step">
+<time class="muted">00:45:00</time>
+<h2>Emergency recovery</h2>
+<div class="chip">
+<strong>42 min</strong>Business interruption</div>
+<div class="chip">
+<strong>Forced</strong>Basic-order recovery</div>
+<p>The team restarted part of the cluster and degraded non-core traffic to contain the failure.</p>
+</article>
+<article class="time-step">
+<time>01:30:00</time>
+<h2>Full-path recovery</h2>
+<div class="chip">
+<strong class="blue">90 min</strong>Total recovery</div>
+<div class="chip">
+<strong class="blue">Normal</strong>Operating indicators</div>
+<p>Cache correction and database switching restored normal operation.</p>
+</article>
+</div>
+<div class="conclusion">
+<h2>Core conclusion</h2>
+<div class="chain">
+<b>Code defect</b>
+<i>→</i>
+<b>Application avalanche</b>
+<i>→</i>
+<b>Database overload</b>
+<i>→</i>
+<b>System paralysis</b>
+</div>
+<p>The chain exposed critical architectural weaknesses and provides the basis for accountability and remediation.</p>
+</div>
+</section>
+<section class="slide">
+<h1 class="title">Quantified business loss</h1>
+<div class="panel loss-top">
+<div class="loss-main">
+<small>⌁ Direct GMV loss</small>
+<strong>128 <small style="font-size:20px;color:#ff414b;display:inline">million RMB</small>
+</strong>
+</div>
+<div class="loss-facts">
+<div class="loss-fact">
+<strong>◉ 90 min</strong>
+<span>System unavailable</span>
+</div>
+<div class="loss-fact">
+<strong>↑ 15x</strong>
+<span>Average full-day transactions</span>
+</div>
+<div class="loss-fact">
+<strong>ϟ Peak window</strong>
+<span>Highest-conversion period missed</span>
+</div>
+</div>
+</div>
+<div class="loss-grid">
+<article class="panel loss-card">
+<h2>GMV loss detail</h2>
+<strong>RMB 128M</strong>
+<p>The outage missed the promotion's highest-conversion window.</p>
+</article>
+<article class="panel loss-card">
+<h2>DAU decline</h2>
+<strong>18.5%</strong>
+<p>Daily active users fell sharply during the first 24 hours.</p>
+</article>
+<article class="panel loss-card">
+<h2>Affected-user churn</h2>
+<strong>35%</strong>
+<p>Customers uninstalled the app or moved to competitors after failed orders.</p>
+</article>
+<article class="panel loss-card">
+<h2>Potential revenue loss</h2>
+<strong>RMB 450M</strong>
+<p>Churn could materially reduce revenue over the next three months.</p>
+</article>
+</div>
+<div class="brand-row">
+<article class="panel brand">
+<h2>⚠ Brand-reputation damage</h2>
+<div class="brand-metrics">
+<div>
+<strong>3200%</strong>
+<br>
+<span class="muted">Negative-keyword discussions</span>
+</div>
+<div>
+<strong>87%</strong>
+<br>
+<span class="muted">Negative sentiment</span>
+</div>
+<div>
+<strong>4.8 → 3.2</strong>
+<br>
+<span class="muted">App-store rating</span>
+</div>
+</div>
+</article>
+<article class="panel brand">
+<h2>Compensation and recovery</h2>
+<strong class="red" style="font-size:38px">RMB 8M</strong>
+<p class="muted">Presale compensation and extra logistics cost</p>
+</article>
+</div>
+<div class="warning">
+<b class="red">Strategic warning:</b> indirect losses exceeded the direct loss and weakened market confidence.</div>
+</section>
+<section class="slide">
+<h1 class="title">Infinite-loop defect in business logic</h1>
+<div class="panel root-banner">
+<h2>Fatal root cause</h2>
+<p>▪ A promotion-rule engine contained an infinite-loop defect.</p>
+<p>▪ The combined discount and coupon calculation lacked a terminating condition.</p>
+<p>▪ Threads looped indefinitely when three or more promotion conditions were met.</p>
+</div>
+<h2 class="section-label">Failure amplification</h2>
+<div class="process-grid">
+<article class="panel process">
+<h3>
+<em>01</em>Infinite loop</h3>
+<p>Tens of thousands of concurrent requests entered the loop and held application threads.</p>
+</article>
+<article class="panel process">
+<h3>
+<em>02</em>Thread-pool exhaustion</h3>
+<p>All application-node thread pools filled within two minutes.</p>
+</article>
+<article class="panel process hot">
+<h3>
+<em>03</em>Resource exhaustion</h3>
+<p>CPU reached 98%-100%, and object growth caused frequent full garbage collection.</p>
+</article>
+<article class="panel process">
+<h3>
+<em>04</em>Domino effect</h3>
+<p>Gateway connections accumulated, downstream services timed out, and the system stalled.</p>
+</article>
+</div>
+<h2 class="section-label">Review and management causes</h2>
+<div class="review-grid">
+<article class="panel review">
+<h3>Missing code review</h3>
+<p>Review failed to test boundary conditions in complex business logic.</p>
+</article>
+<article class="panel review">
+<h3>Test-coverage blind spot</h3>
+<p>Automated tests did not cover abnormal paths in the calculation logic.</p>
+</article>
+<article class="panel review">
+<h3>Technical-debt failure</h3>
+<p>Technical debt surfaced under extreme load and amplified the traffic shock.</p>
+</article>
+</div>
+</section>
+<section class="slide">
+<h1 class="title">Database lock-contention avalanche</h1>
+<div class="db-top">
+<article class="panel db-metric danger">
+<h2>High-concurrency row locks</h2>
+<strong>Trading path blocked</strong>
+</article>
+<article class="panel db-metric">
+<p>Available connections</p>
+<strong>500→0</strong>
+<span>Consumed within 30 seconds</span>
+</article>
+<article class="panel db-metric red">
+<p>CPU I/O wait</p>
+<strong>90%</strong>
+<span>Extreme resource consumption</span>
+</article>
+<article class="panel db-metric red">
+<p>Order-table status</p>
+<strong>Deadlocked</strong>
+<span>All writes blocked</span>
+</article>
+</div>
+<div class="db-main">
+<article class="panel mechanism">
+<h2>Connection-pool exhaustion mechanism</h2>
+<div class="flow-box">Application-layer blocking</div>
+<div class="down">↓</div>
+<div class="flow-box">Hot-inventory updates</div>
+<div class="down">↓</div>
+<div class="flow-box bad">Extreme row-lock contention</div>
+<div class="down">↓</div>
+<div class="flow-box bad">Connection pool exhausted (0/500)</div>
+</article>
+<div class="db-notes">
+<article class="panel db-note">
+<b>01</b>
+<div>
+<h2>Failure propagation</h2>
+<p>Long transactions held locks without committing.<br>Waiting requests intensified contention.</p>
+</div>
+</article>
+<article class="panel db-note">
+<b>02</b>
+<div>
+<h2>Data symptoms</h2>
+<p>Active sessions exceeded the limit.<br>New connections were rejected.</p>
+</div>
+</article>
+<article class="panel db-note">
+<b>03</b>
+<div>
+<h2>Architecture defect</h2>
+<p>The design underestimated concurrent writes<br>and relied on one database without sharding.</p>
+</div>
+</article>
+</div>
+</div>
+</section>
+<section class="slide">
+<h1 class="title">R&amp;D process-control targets</h1>
+<div class="control-grid">
+<article class="panel control">
+<span class="idx">01</span>
+<h2>Static-scan gate</h2>
+<ul>
+<li>Introduce advanced static-analysis tools</li>
+<li>Check for infinite loops and null-pointer references</li>
+<li>Block main-branch merges when checks fail</li>
+</ul>
+<div class="control-goal">Block quality risks at the source</div>
+</article>
+<article class="panel control">
+<span class="idx">02</span>
+<h2>Full-path stress-test standard</h2>
+<ul>
+<li>Test in a production-like core-system environment</li>
+<li>Run at no less than 1.2x the production peak</li>
+<li>Cover cache failure and network jitter</li>
+</ul>
+<div class="control-goal">Maintain stability under extreme load</div>
+</article>
+<article class="panel control">
+<span class="idx">03</span>
+<h2>Two-person review and final approval</h2>
+<ul>
+<li>Apply strict control to core trading changes</li>
+<li>Require two senior engineers to cross-review</li>
+<li>Require final architect approval</li>
+</ul>
+<div class="control-goal">Protect core trading changes</div>
+</article>
+<article class="panel control">
+<span class="idx">04</span>
+<h2>Quality red-line assessment</h2>
+<ul>
+<li>Establish a quality red-line mechanism</li>
+<li>Track production failures and rollback rates</li>
+<li>Reinforce code-quality ownership</li>
+</ul>
+<div class="control-goal">Strengthen quality awareness</div>
+</article>
+</div>
+<div class="quality">
+<div>Build a strict <b class="red">quality-defense network</b> so every released line of code can withstand production pressure<small>Improve delivery reliability and prevent basic defects from reaching production again</small>
+</div>
+</div>
+</section>
+<section class="slide">
+<h1 class="title">Emergency response optimization</h1>
+<div class="response-flow">
+<article class="panel response-card">
+<span class="badge">Standard reset</span>
+<div class="icon">▣</div>
+<h2>Incident classification and response</h2>
+<p>Define P0-P3 severity criteria, decision rules, and response limits.</p>
+</article>
+<article class="panel response-card core">
+<span class="badge">Critical focus</span>
+<div class="icon">ϟ</div>
+<h2>P0 rapid-response mechanism</h2>
+<div class="sla">
+<span>
+<b>1 minute</b>
+<b class="red">Detect</b>
+</span>
+<span>
+<b>3 minutes</b>
+<b class="red">Respond</b>
+</span>
+<span>
+<b>5 minutes</b>
+<b class="red">Limit loss</b>
+</span>
+</div>
+<p>Create a rapid response loop that supports action during the critical window.</p>
+</article>
+<article class="panel response-card">
+<span class="badge">Delegated authority</span>
+<div class="icon">▢</div>
+<h2>Decision and loss control</h2>
+<p>Allow on-call staff to rate-limit, degrade, and switch traffic without waiting for approval.</p>
+</article>
+<article class="panel response-card">
+<span class="badge">Routine drills</span>
+<div class="icon">↻</div>
+<h2>Full-path failure injection</h2>
+<p>Run monthly drills to validate plans and build emergency-response experience.</p>
+</article>
+</div>
+<div class="response-bottom">
+<div class="mttr">
+<small>Mean time to recovery (MTTR)</small>
+<del>45 min</del> → <strong>15 min</strong>
+</div>
+<p>
+<b>Core target:</b> reduce recovery time, automate second-level recovery where possible, shift from reactive firefighting to proactive defense, and minimize business impact.</p>
+</div>
+</section>
+</body>
+</html>
