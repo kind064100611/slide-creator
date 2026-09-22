@@ -6,12 +6,12 @@
     .slide[data-layout="summary-metric-peer-cards"] .year { position:absolute; top:5cqh; right:3cqw; padding:.67cqh .88cqw; border:1px solid var(--panel-line); border-radius:.31cqw; color:var(--muted); font-size:clamp(11px,.82cqw,16px); }
     .slide[data-layout="summary-metric-peer-cards"] .card { border:1px solid var(--panel-line); border-radius:.5cqw; background:var(--panel-background); box-shadow:0 8px 22px color-mix(in srgb,var(--accent-1) 10%,transparent); }
     .slide[data-layout="summary-metric-peer-cards"] .green { color:var(--accent-1); }
-    .slide[data-layout="summary-metric-peer-cards"] .roi-summary { display:grid; height:19.45cqh; grid-template-columns:18.75cqw 1fr 1fr; align-items:center; gap:2.63cqw; padding:4.22cqh 3.13cqw; }
+    .slide[data-layout="summary-metric-peer-cards"] .roi-summary { display:grid; min-height:18cqh; grid-template-columns:18.75cqw 1fr 1fr; align-items:center; gap:2.63cqw; padding:3.1cqh 3.13cqw; }
     .slide[data-layout="summary-metric-peer-cards"] .roi-summary small { display:block; color:var(--muted); font-size:clamp(15px,1.13cqw,22px); }
     .slide[data-layout="summary-metric-peer-cards"] .roi-summary strong { display:block; color:var(--accent-2); font-size:clamp(47px,3.56cqw,68px); line-height:1; }
     .slide[data-layout="summary-metric-peer-cards"] .roi-summary p { margin:0; padding-left:2.63cqw; border-left:1px solid var(--line); font-size:clamp(16px,1.25cqw,24px); line-height:1.55; }
-    .slide[data-layout="summary-metric-peer-cards"] .roi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2.25cqw; margin-top:3.33cqh; }
-    .slide[data-layout="summary-metric-peer-cards"] .roi-card { height:61.65cqh; padding:4.88cqh 3cqw; border-top:.55cqh solid var(--accent-1); }
+    .slide[data-layout="summary-metric-peer-cards"] .roi-grid { display:grid; grid-template-columns:repeat(var(--roi-card-count),1fr); gap:2.25cqw; margin-top:3.33cqh; }
+    .slide[data-layout="summary-metric-peer-cards"] .roi-card { min-height:0; padding:3.55cqh 3cqw; border-top:.55cqh solid var(--accent-1); }
     .slide[data-layout="summary-metric-peer-cards"] .roi-card > .idx { display:flex; width:3.13cqw; height:5.55cqh; align-items:center; justify-content:center; margin:0; border-radius:.44cqw; background:var(--accent-1); color:var(--ink); font-size:clamp(17px,1.32cqw,25px); font-weight:800; line-height:1; text-align:center; }
     .slide[data-layout="summary-metric-peer-cards"] .roi-card h2 { margin:3.55cqh 0 2.2cqh; color:var(--accent-1); font-size:clamp(22px,1.68cqw,32px); line-height:1.15; }
     .slide[data-layout="summary-metric-peer-cards"] .roi-card h2::after { display:block; width:3.13cqw; margin-top:2cqh; border-bottom:.55cqh solid var(--accent-2); content:""; }
@@ -24,7 +24,7 @@
 <!-- Fixed skeleton: one three-column ROI summary band followed by three homogeneous ROI cards; every card owns an ordinal, title, value, caption, and bullet list. Every ordinal must be an explicit <span class="idx" data-pptx-shape data-pptx-text> node. Repeat only ROI cards. -->
 <section id="{{SLIDE_ID}}" class="slide" data-layout="summary-metric-peer-cards" aria-label="{{SLIDE_LABEL}}"><article class="canvas"><span class="rail" data-pptx-shape aria-hidden="true"></span>
   <header class="slide-header compact slide-section" data-pptx-shape><span class="year">{{YEAR}}</span><h1 class="title">{{TITLE}}</h1></header>
-  <div class="card roi-summary" data-pptx-shape data-geometry-contain-content>{{SUMMARY}}</div>
-  <div class="roi-grid" data-layout-repeat="roi-cards" data-layout-count="{{CARD_COUNT}}" data-layout-item-tag="article" data-layout-item-class="roi-card" data-layout-item-roles="idx roi-card-title roi-card-value roi-card-caption roi-card-list">{{CARDS}}</div>
+  <div class="card roi-summary" data-pptx-shape data-geometry-contain-content><div class="roi-summary-metric"><small class="roi-summary-label">{{SUMMARY_LABEL}}</small><strong class="roi-summary-value">{{SUMMARY_VALUE}}</strong></div><p class="roi-summary-statement">{{SUMMARY_STATEMENT_1}}</p><p class="roi-summary-statement">{{SUMMARY_STATEMENT_2}}</p></div>
+  <div class="roi-grid" data-layout-repeat="roi-cards" data-layout-count="{{CARD_COUNT}}" data-layout-item-tag="article" data-layout-item-class="roi-card" data-layout-item-roles="idx roi-card-title roi-card-value roi-card-caption roi-card-list" data-layout-role-tags="idx:span roi-card-title:h2 roi-card-value:strong roi-card-caption:span roi-card-list:ul" data-layout-direct-roles="idx roi-card-title roi-card-value roi-card-caption roi-card-list" data-layout-role-attrs="idx:data-pptx-shape,data-pptx-text" data-layout-allowed-item-classes="card" style="--roi-card-count:{{CARD_COUNT}}">{{CARDS}}</div>
   <footer class="deck-foot"><p>{{FOOTER_NOTE}}</p><p>{{PAGE_COUNTER}}</p></footer>
 </article></section>

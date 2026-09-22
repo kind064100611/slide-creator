@@ -19,7 +19,7 @@ Render both artifacts into one image per slide before judging visual fidelity.
 - Pair slides by source order and heading. Never hide a mismatch by reordering pages.
 - Treat page-count differences, duplicated pages, and missing pages as failures unless the reference explicitly marks an optional page.
 - When source text or object structure is available, use it to confirm wording, numbers, grouping, and relationships; do not rely on OCR or image similarity alone.
-- Compare visible facts as an atomic ledger, not just as a bag of keywords. A metric duplicated into both a headline and note, an invented slot-filling label, a footer sentence copied into a body list, or a sibling metric promoted into a governing/root role is a Major mismatch even when every source word still appears somewhere.
+- Compare visible facts as a semantic ledger, not as a bag of keywords or a verbatim transcript. A metric duplicated into both a headline and note, an invented slot-filling label, a footer sentence copied into a body list, or a sibling metric promoted into a governing/root role is a Major mismatch even when every source word still appears somewhere. Concise, grammatical wording is acceptable when the fact, measure, qualifier, ownership, and emphasis are unchanged.
 - For generated-PPTX review against standard HTML, row/list alignment, connector endpoints, node separation, hierarchy depth, visual mass, and footer placement may not degrade relative to the standard.
 
 Contact sheets and thumbnail grids are navigation aids only. They may identify suspect pages, but they cannot qualify a slide or deck because they hide missing labels, weak emphasis, connector defects, and large internal dead zones.
@@ -89,7 +89,7 @@ For every page pair, record and preserve:
 
 Match relationship structure before visual decoration. A generic card grid is not similar to a hierarchy, process, timeline, comparison, or branch diagram merely because it contains the same words.
 
-Treat each page as one fixed composition, not as a collection of interchangeable slots. Map every reference region to exactly one candidate region and verify its role, order, orientation, and parent-child relationship. In particular, distinguish:
+Treat each page as one semantic composition family, not as a collection of interchangeable slots or an exact pixel tracing. Map every reference region to exactly one candidate region and verify its role, order, orientation, and parent-child relationship. Allow adaptive row height, wrapping, spacing, and repeat count when those changes improve fit without changing topology. In particular, distinguish:
 
 - one horizontal row from one vertical stack or a two-by-two grid;
 - a central hub with surrounding spokes from a top-down tree;
@@ -121,11 +121,13 @@ Similarity is not a waiver for poor composition. Apply a separate absolute-quali
 
 Presence-only matching is specifically prohibited. A candidate that preserves the card shell but reduces a dense reference card to one small heading and one line of text is a **Major** mismatch. If that treatment affects two or more peer cards or removes a relationship, it is a **Blocker**.
 
-For template-generated output, confirm that each slide follows one fixed template skeleton. The candidate may repeat only same-kind nodes that the selected template explicitly declares as repeatable. It must not add ad-hoc sidebars, mixed card types, extra summary strips, synthetic leads, or connector systems borrowed from another template to make a page fit.
+For template-generated output, confirm that each slide follows one canonical semantic skeleton. The candidate may repeat only same-kind nodes that the selected template explicitly declares as repeatable, and the template must adapt its rows, heights, gaps, and wrapping to the actual content. It must not add ad-hoc sidebars, mixed card types, extra summary strips, synthetic leads, or connector systems borrowed from another template to make a page fit.
 
 When deriving repeated peer cardinality, count only homogeneous sibling nodes that share the same semantic item signature or the selected template's declared `data-layout-repeat` group. Do not flatten a repeated group together with a following summary, banner, lead, or other different sibling and report the combined count as one peer group.
 
 Do not treat an example's peer count as part of the fixed skeleton when the template declares that peer node repeatable. A summary-plus-evidence layout remains the same layout with three, four, or another source-authored number of homogeneous evidence cards. Review that the candidate emitted direct children matching the declared item tag/class and role order, preserved every card's styling, and matched the source cardinality exactly. Reject nested `<template>` fragments, embedded secondary layouts, dropped peers, capped counts, switches to a looser template only because the count changed, or a different card type for an additional item. If the expanded collection cannot meet the geometry floor, the correct outcome is a source-boundary split, not count truncation or font shrinkage.
+
+For generated HTML, derive repeated-peer cardinality first from each canonical `data-layout-repeat` container and its direct visible children. Accent/tone/alert modifier classes do not create a different peer type when the nodes share the same canonical item class. For a legacy reference without repeat metadata, infer peers only from direct visible siblings sharing a structural class; do not flatten unrelated nested groups or count a wrapper's mixed children as one peer collection.
 
 Treat template CSS isolation as part of the fixed-skeleton contract. Every selector in a layout style block must be scoped to `.slide[data-layout="<that-layout>"]`. An unscoped selector, or a selector whose appearance depends on which other templates were loaded before or after it, is a blocker because it can silently change unrelated slides.
 
@@ -145,17 +147,17 @@ Confirm that the candidate preserves:
 - the ownership of each item by the correct slide and region;
 - the source's emphasis, including primary measures, anchor conclusions, and governing nodes;
 - separate peer items without accidental merging, duplication, or omission.
-- authored numbering and ordinal prefixes when they identify sequence, ownership, or peer identity; do not drop them as decoration or synthesize new ones where the reference has none;
+- authored numbering and ordinal prefixes when they identify sequence, ownership, or peer identity; do not duplicate them in both a dedicated badge and its adjacent title. Purely presentational numbering may change padding (`1` versus `01`) or be omitted when order and identity remain unambiguous, but it must never be mistaken for a business metric;
 - dedicated ordinal badges must keep the number optically centered on both axes and must materialize as explicit text-bearing shapes; a visible number pinned to a badge corner is a **Major** layout defect even when the token is present;
 - source-authored pills, badges, labels, and conclusion bands as distinct nodes when the reference presents them separately; inline text is not an equivalent replacement when separation carries grouping or emphasis.
 - For HTML that will be materialized into PPTX, every source-owned word, number, ordinal, connector shaft, and arrowhead must exist as an explicit DOM/SVG/image node supported by the materializer. CSS `content`, `::before`, `::after`, list counters, background images, and other browser-only generated content do not count as present until the rendered PPTX proves that they survive. Loss of an authored ordinal or connector through pseudo-element materialization is a **Major** defect; loss that changes sequence or relationship is a **Blocker**.
-- A repeated collection must preserve the selected slide template's declared item tag/class, role tags, role order, materialization attributes, and one-to-one cardinality. A candidate fails when it nests another template/layout, merely declares repeat metadata, merges an ordinal into a title, promotes an ordinary label to a heading, rebuilds the item with different child tags, or omits required connector/metric roles.
+- A repeated collection must preserve the selected slide template's declared item tag/class, ordered structural role clusters, and one-to-one cardinality. Enforce an exact role tag, direct-child position, or materialization attribute only when the canonical template explicitly declares it because geometry, hierarchy, table semantics, ordinals, connectors, or PPTX conversion depend on it. Do not fail a candidate merely because harmless internal wrappers differ or because a compound metric keeps value, unit, and caption nested inside one declared metric cluster. A candidate still fails when it nests another template/layout, merely declares repeat metadata without using the page skeleton, merges a materialized ordinal into a title, promotes an ordinary label to a heading, removes a required structural cluster, or omits required connector geometry.
 
 For each paired page, compare the semantic ledgers before accepting visual fidelity:
 
-- every distinct reference text item must be present on the same candidate page, allowing only meaning-preserving translation or the smallest readability edit;
+- every distinct reference fact, measure, qualifier, action, named node, and conclusion must be represented on the same candidate page, allowing meaning-preserving translation and concise readability edits;
 - every candidate text item must trace to the reference page or its source; untraceable subtitles, summaries, conclusions, labels, dates, and metrics are invented content;
-- when the reference and candidate are generated from the same language source, compare visible wording verbatim after only whitespace normalization and safe HTML-entity decoding. Paraphrases, expanded explanations, inferred takeaways, and substituted labels are not fidelity matches even when they sound semantically plausible;
+- when the reference and candidate are generated from the same language source, compare meaning and ownership first. Concise grammatical paraphrases are acceptable; expanded explanations, inferred takeaways, substituted facts, weakened qualifiers, or labels that change the role are not fidelity matches. Word-overlap scores are triage signals only and cannot by themselves pass or fail a page;
 - compare paragraph and list-item segmentation. Splitting one reference paragraph into multiple sibling text nodes, merging separate paragraphs, or converting prose to bullets is a structural content mismatch when it changes grouping or emphasis;
 - compare hard line breaks inside text runs. Candidate-only `<br>` elements or PPTX hard breaks used merely for wrapping are rendering defects; ordinary wrapping must remain renderer-driven unless the reference authors the break;
 - compare exact display tokens independently from numeric meaning: `>25%` is not `25%+`, `5–8×` is not `5x–8x`, `20 hours` is not `20h+`, and `1.5×` is not `1.5x`;
@@ -163,7 +165,7 @@ For each paired page, compare the semantic ledgers before accepting visual fidel
 - repeated labels, list rows, table rows, named graph nodes, and relationship labels must preserve their reference cardinality and order;
 - compare inline emphasis and adjacent punctuation, not only normalized plain text. A bold prefix flattened to ordinary text, a dropped colon or separator, or an emphasized token promoted into a different region is a content-structure mismatch;
 - compare authored ordinals by role. When the reference uses one dedicated index plus an unnumbered title, a candidate that repeats the same ordinal inside the title has duplicate content and is at least **Major**;
-- for ordered-list agenda rows, compare the rendered index format independently from Markdown syntax. A reference `01` is not matched by `1.`; list-marker punctuation must not leak into the visible dedicated index.
+- for ordered-list agenda rows, compare the rendered index independently from Markdown syntax. `01`, `1`, and `1.` may express the same presentational order, but list-marker punctuation must not leak into the adjacent title and the index must not be counted as a business metric.
 - when a diagram already renders a relationship, candidate prose that merely serializes the same source-target edges is duplicate content. Count that prose region as invented/duplicated structure unless the reference also contains a separate explanatory note;
 - extractable PPTX text/object data is authoritative for content completeness. OCR or a visually similar screenshot is insufficient when native content is available.
 
@@ -229,7 +231,7 @@ For short categorical labels, prefer a concise meaning-preserving label that fit
 - For contents and agenda pages, require the candidate to preserve the reference orientation and balance: full-width stacked rows remain full-width stacked rows; balanced agenda cards remain balanced cards; an asymmetric lead-and-list template is valid only when the source authors a meaningful lead region.
 - A contents or agenda page with full-width rows must keep a stable left number band and row body alignment. Do not accept a list whose rows drift into the horizontal center/right of the page or whose index treatment changes from a row-owned block into a small detached label.
 
-Generic HTML geometry checks are necessary but not sufficient. A page may have no overlap or overflow and still fail because its fixed skeleton, meaningful occupancy, or reading order differs from the reference.
+Generic HTML geometry checks are necessary but not sufficient. A page may have no overlap or overflow and still fail because its semantic skeleton, meaningful occupancy, or reading order differs from the reference.
 
 Exact theme colors, font family, icon glyphs, shadows, antialiasing, and small spacing differences are acceptable only when hierarchy, emphasis, geometry, surface roles, and reading order remain equivalent. Theme substitution is not permission to change the visual role of a region.
 

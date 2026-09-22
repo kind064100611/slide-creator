@@ -58,6 +58,10 @@ function repeatContracts(value) {
   for (const match of value.matchAll(/<([a-z][a-z0-9-]*)\b([^>]*\bdata-layout-repeat="([^"]+)"[^>]*)>/giu)) {
     const attributes = match[2];
     const attribute = (name) => new RegExp(`(?:^|\\s)${name}="([^"]*)"`, 'u').exec(attributes)?.[1] || '';
+    const tokenMap = (name, valueSeparator = ':') => Object.fromEntries(attribute(name).split(/\s+/u).filter(Boolean).map((token) => {
+      const separator = token.indexOf(valueSeparator);
+      return separator < 0 ? [token, ''] : [token.slice(0, separator), token.slice(separator + valueSeparator.length)];
+    }));
     const containerClass = attribute('class').split(/\s+/u).find((className) => className && !className.includes('{{')) || '';
     repeats.push({
       name: match[3],
@@ -66,6 +70,11 @@ function repeatContracts(value) {
       itemTag: attribute('data-layout-item-tag').toLowerCase(),
       itemClass: attribute('data-layout-item-class'),
       roleClasses: attribute('data-layout-item-roles').split(/\s+/u).filter(Boolean),
+      optionalRoleClasses: attribute('data-layout-optional-item-roles').split(/\s+/u).filter(Boolean),
+      roleTags: tokenMap('data-layout-role-tags'),
+      directRoleClasses: attribute('data-layout-direct-roles').split(/\s+/u).filter(Boolean),
+      roleAttrs: Object.fromEntries(Object.entries(tokenMap('data-layout-role-attrs')).map(([role, attrs]) => [role, attrs.split(',').filter(Boolean)])),
+      allowedItemClasses: attribute('data-layout-allowed-item-classes').split(/\s+/u).filter(Boolean),
     });
   }
   return repeats;
@@ -94,6 +103,64 @@ function cssRuleSelectors(cssText) {
   return [...cssText.replace(/\/\*[\s\S]*?\*\//gu, '').matchAll(/([^{}]+)\{/gu)]
     .map((match) => match[1].trim())
     .filter((selector) => selector && !selector.startsWith('@'));
+}
+
+function parseArgs(argv) {
+  const result = { requireSourceOwner: false, sourceFile: null, fileNames: [] };
+  for (let index = 0; index < argv.length; index += 1) {
+    const value = argv[index];
+    if (value === '--require-source-owner') result.requireSourceOwner = true;
+    else if (value === '--source') {
+      if (!argv[index + 1] || argv[index + 1].startsWith('--')) throw new Error('--source requires a Markdown file path');
+      result.sourceFile = argv[++index];
+    } else if (value.startsWith('--')) throw new Error(`Unknown argument: ${value}`);
+    else result.fileNames.push(value);
+  }
+  if (result.sourceFile && result.fileNames.length !== 1) throw new Error('--source requires exactly one generated HTML file');
+  return result;
+}
+
+function normalizeMarkdownHeading(value) {
+  return value
+    .replace(/!\[([^\]]*)\]\([^)]*\)/gu, '$1')
+    .replace(/\[([^\]]+)\]\([^)]*\)/gu, '$1')
+    .replace(/[`*_~]/gu, '')
+    .replace(/\\([\\`*_\[\]{}()#+\-.!])/gu, '$1')
+    .trim();
+}
+
+function markdownBoundaryOwners(markdown) {
+  const headings = [];
+  const lines = markdown.replace(/\r\n?/gu, '\n').split('\n');
+  let inFence = false;
+  let inFrontmatter = lines[0]?.trim() === '---';
+  for (let index = inFrontmatter ? 1 : 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (inFrontmatter) {
+      if (line.trim() === '---') inFrontmatter = false;
+      continue;
+    }
+    if (/^\s*(?:`{3,}|~{3,})/u.test(line)) {
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence) continue;
+    const atxMatch = /^ {0,3}(#{1,3})[ \t]+(.+?)[ \t]*$/u.exec(line);
+    if (atxMatch) {
+      const title = normalizeMarkdownHeading(atxMatch[2].replace(/[ \t]+#+[ \t]*$/u, ''));
+      if (title) headings.push({ level: atxMatch[1].length, title });
+      continue;
+    }
+    const setextMatch = /^ {0,3}(=+|-+)[ \t]*$/u.exec(lines[index + 1] ?? '');
+    if (line.trim() && setextMatch) {
+      const title = normalizeMarkdownHeading(line.trim());
+      if (title) headings.push({ level: setextMatch[1][0] === '=' ? 1 : 2, title });
+      index += 1;
+    }
+  }
+  if (!headings.length) return [];
+  const boundaryLevel = Math.min(...headings.map(({ level }) => level));
+  return headings.filter(({ level }) => level === boundaryLevel).map(({ title }) => title);
 }
 
 function staticChecks() {
@@ -154,7 +221,23 @@ function staticChecks() {
     }
     for (const repeat of repeatContracts(content)) {
       if (!repeat.containerClass || !repeat.itemTag || !repeat.itemClass) failures.push(`${fileName}: repeat group ${repeat.name} has an incomplete canonical item contract`);
+      const declaredRoles = new Set([...repeat.roleClasses, ...repeat.optionalRoleClasses]);
+      for (const role of Object.keys(repeat.roleTags)) if (!declaredRoles.has(role)) failures.push(`${fileName}: repeat group ${repeat.name} declares a tag for unknown role ${role}`);
+      for (const role of repeat.directRoleClasses) if (!declaredRoles.has(role)) failures.push(`${fileName}: repeat group ${repeat.name} declares direct placement for unknown role ${role}`);
+      for (const role of Object.keys(repeat.roleAttrs)) if (!declaredRoles.has(role)) failures.push(`${fileName}: repeat group ${repeat.name} declares attributes for unknown role ${role}`);
     }
+  }
+
+  const forbiddenWholeFragments = {
+    'card-flow-target-band.html': ['{{TARGET_BAND}}'],
+    'lead-analysis-process-review-grid.html': ['{{ROOT_BANNER}}'],
+    'metric-summary-history-cards.html': ['{{SUMMARY}}'],
+    'ordered-control-grid-goal-band.html': ['{{QUALITY}}'],
+    'summary-metric-peer-cards.html': ['{{SUMMARY}}'],
+  };
+  for (const [fileName, placeholders] of Object.entries(forbiddenWholeFragments)) {
+    const content = read(`layouts/${fileName}`);
+    for (const placeholder of placeholders) if (content.includes(placeholder)) failures.push(`${fileName}: whole-fragment placeholder ${placeholder} bypasses the canonical page skeleton`);
   }
 
   const metricGrid = read('layouts/metric-grid.html');
@@ -243,29 +326,29 @@ function buildPriorityFixture() {
   const slides = [];
 
   slides.push(fill(layouts.dashboard.body, {
-    ...common, SLIDE_ID: 'dashboard', TITLE: 'Account health summary', HEADER_METADATA: 'QBR review', PILLS_LABEL: 'facts', PILL_1: '47 days', PILL_2: '$340K ARR',
+    ...common, SLIDE_ID: 'dashboard', TITLE: 'Account health summary', HEADER_METADATA: 'QBR review', PILLS_LABEL: 'facts', PILL_COUNT: '2',
     CALLOUT_TITLE: 'Renewal risk', CALLOUT_BODY: 'Confidence is weakening, but the account remains recoverable.', METRIC_COUNT: '3', METRICS_LABEL: 'signals',
-    PILLS: '<span class="pill" data-pptx-shape data-pptx-text>47 days</span><span class="pill" data-pptx-shape data-pptx-text>$340K ARR</span>',
+    PILLS: '<span class="pill" data-pptx-shape><span class="pill-copy" data-pptx-text>47 days</span></span><span class="pill" data-pptx-shape><span class="pill-copy" data-pptx-text>$340K ARR</span></span>',
     METRICS: dashboardMetric('−22%', 'Weekly users', '60 days', 'negative') + dashboardMetric('1 of 4', 'Features active', 'current') + dashboardMetric('30+ days', 'Issue age', 'no ETA'),
     COMPARISON_1_LABEL: 'Current churn', COMPARISON_1_VALUE: '6.8% q/q', COMPARISON_1_WIDTH: '6.8%', COMPARISON_2_LABEL: 'Prior churn', COMPARISON_2_VALUE: '5.1% q/q', COMPARISON_2_WIDTH: '5.1%', COMPARISON_CONTEXT: 'Quarter over quarter',
-    DETAIL_1_TITLE: 'Risk drivers', DETAIL_1_ITEMS: '<li>Critical issue remains blocked.</li><li>Value proof is shallow.</li>',
-    DETAIL_2_TITLE: 'Next moves', DETAIL_2_ITEMS: '<li>Assign engineering owner.</li><li>Package the ROI story.</li><li>Relaunch enablement.</li>',
+    DETAIL_1_TITLE: 'Risk drivers', DETAIL_1_COUNT: '2', DETAIL_1_ITEMS: '<li class="dashboard-detail-item"><span class="dashboard-detail-index" data-pptx-shape data-pptx-text>1</span><span class="dashboard-detail-item-copy">Critical issue remains blocked.</span></li><li class="dashboard-detail-item"><span class="dashboard-detail-index" data-pptx-shape data-pptx-text>2</span><span class="dashboard-detail-item-copy">Value proof is shallow.</span></li>',
+    DETAIL_2_TITLE: 'Next moves', DETAIL_2_COUNT: '3', DETAIL_2_ITEMS: '<li class="dashboard-detail-item"><span class="dashboard-detail-item-copy">Assign engineering owner.</span></li><li class="dashboard-detail-item"><span class="dashboard-detail-item-copy">Package the ROI story.</span></li><li class="dashboard-detail-item"><span class="dashboard-detail-item-copy">Relaunch enablement.</span></li>',
   }));
 
   slides.push(fill(layouts['evidence-impact'].body, {
-    ...common, SLIDE_ID: 'evidence-impact', TITLE: 'Risk evidence and impact',
-    SIGNALS_LABEL: 'signals', SIGNAL_COUNT: '3', SIGNAL_CARDS: ['Engagement', 'Product value', 'Delivery confidence'].map((title, index) => `<article class="evidence-signal" data-pptx-shape><span class="evidence-kicker">0${index + 1}</span><h2 class="evidence-signal-title">${title}</h2><strong class="evidence-value">${['−22%', '1 of 4', '30+ days'][index]}</strong><p class="evidence-signal-copy">Evidence</p></article>`).join(''),
+    ...common, SLIDE_ID: 'evidence-impact', TITLE: 'Risk evidence and impact', PILL_COUNT: '0', PILLS: '',
+    SIGNALS_LABEL: 'signals', SIGNAL_COUNT: '3', SIGNAL_CARDS: ['Engagement', 'Product value', 'Delivery confidence'].map((title, index) => `<article class="evidence-signal" data-pptx-shape><span class="evidence-kicker" data-pptx-text>0${index + 1}</span><h2 class="evidence-signal-title">${title}</h2><strong class="evidence-value">${['−22%', '1 of 4', '30+ days'][index]}</strong><p class="evidence-signal-copy">Evidence</p></article>`).join(''),
     SEQUENCE_TITLE: 'Evidence timeline', SEQUENCE_COUNT: '4', SEQUENCE_ITEMS: ['30+ days', '9 days', 'Finance call', 'Now'].map((label) => `<div class="evidence-sequence-item"><strong class="evidence-sequence-label">${label}</strong><p class="evidence-sequence-copy">Evidence item.</p></div>`).join(''),
     IMPACT_TITLE: 'Likely renewal impact', IMPACT_COUNT: '3', IMPACT_CARDS: ['Budget scrutiny', 'Pilot stalls', 'Trust erodes'].map((title) => `<div class="evidence-impact" data-pptx-shape><strong class="evidence-impact-title">${title}</strong><span class="evidence-impact-copy">Impact evidence.</span></div>`).join(''),
   }));
 
-  const planFields = { ...common, SLIDE_ID: 'action-plan', TITLE: 'Renewal recovery plan', PLAN_LABEL: 'workstreams', PLAN_COUNT: '3', SCORECARD_STATUS: 'Measures', SCORECARD_TITLE: 'Recovery scorecard', SCORECARD_BODY: '<p>Confirm restored confidence.</p>', SCORE_COUNT: '4' };
+  const planFields = { ...common, SLIDE_ID: 'action-plan', TITLE: 'Renewal recovery plan', PILL_COUNT: '0', PILLS: '', PLAN_LABEL: 'workstreams', PLAN_COUNT: '3', SCORECARD_STATUS: 'Measures', SCORECARD_TITLE: 'Recovery scorecard', SCORECARD_BODY: 'Confirm restored confidence.', SCORE_COUNT: '4' };
   planFields.PLAN_CARDS = ['Unblock trust', 'Prove value', 'Rebuild usage'].map((title, index) => `<article class="plan-card" data-pptx-shape data-geometry-contain-content><span class="plan-kicker">${['Now', 'Next 7 days', 'Before QBR'][index]}</span><h2 class="plan-title">${title}</h2><ol class="plan-actions"><li>Name an accountable owner.</li><li>Confirm the measurable outcome.</li><li>Track the follow-up.</li></ol><span class="plan-owner">Suggested owner</span></article>`).join('');
   planFields.SCORE_CARDS = ['ETA', '>1 of 4', '5 users', '100%'].map((value) => `<div class="plan-score" data-pptx-shape><strong class="plan-score-value">${value}</strong><span class="plan-score-label">Checkpoint</span></div>`).join('');
   slides.push(fill(layouts['action-plan'].body, planFields));
 
   slides.push(fill(layouts['metric-grid'].body, {
-    ...common, SLIDE_ID: 'metric-grid', TITLE: 'Hardware cost inflation', LEAD_TITLE: 'Buy now and lock in prices', LEAD_PARAGRAPHS: '<p>Prices remain near a three-year low.</p><p>Delay creates material cost risk.</p>', PRIMARY_CARD_COUNT: '3', SECONDARY_CARD_COUNT: '4',
+    ...common, SLIDE_ID: 'metric-grid', TITLE: 'Hardware cost inflation', LEAD_TITLE: 'Buy now and lock in prices', LEAD_PARAGRAPH_COUNT: '2', LEAD_PARAGRAPHS: '<p class="metric-grid-lead-paragraph"><span class="metric-grid-lead-copy">Prices remain near a three-year low.</span></p><p class="metric-grid-lead-paragraph"><span class="metric-grid-lead-copy">Delay creates material cost risk.</span></p>', PRIMARY_CARD_COUNT: '3', SECONDARY_CARD_COUNT: '4',
     PRIMARY_METRIC_CARDS: metricCard('Mainstream SSD', '+132%', 'RMB 410 to RMB 950') + metricCard('DDR5 kit', '+300%', 'RMB 450 to RMB 1,800') + metricCard('DDR5 memory', '+322%', 'Spot-price increase'),
     SECONDARY_METRIC_CARDS: metricCard('Forecast', '+316%', 'DRAM and NAND') + metricCard('Storage share', '>60%', 'System cost') + metricCard('System price', '+90%', 'Margin protection') + metricCard('Cost of delay', '+35%', 'Budget exposure'),
   }));
@@ -278,7 +361,7 @@ function buildPriorityFixture() {
   const summaryCards = Array.from({ length: 4 }, (_, index) => `<article class="card-row-summary-card" data-pptx-shape data-geometry-contain-content><span class="card-row-summary-index" data-pptx-shape data-pptx-text>0${index + 1}</span><h2 class="card-row-summary-card-title">Response ${index + 1}</h2><div class="card-row-summary-card-content"><ul><li>Action one.</li><li>Action two.</li></ul></div></article>`).join('');
   slides.push(fill(layouts['card-row-summary'].body, { ...common, SLIDE_ID: 'card-row-summary', TITLE: 'Risk response', CARD_COUNT: '4', CARDS: summaryCards, SUMMARY_LABEL: 'Summary', SUMMARY_BODY: 'Forward-looking measures reduce uncertainty.' }));
 
-  const headers = ['Category', 'Assumption', 'Conservative', 'Neutral', 'Optimistic'].map((value) => `<th data-pptx-shape><p>${value}</p></th>`).join('');
+  const headers = ['Category', 'Assumption', 'Conservative', 'Neutral', 'Optimistic'].map((value) => `<th class="flex-table-head-cell" data-pptx-shape><span class="flex-table-head-copy">${value}</span></th>`).join('');
   const rows = Array.from({ length: 5 }, (_, row) => `<tr class="flex-table-row"><th data-pptx-shape><p>Row ${row + 1}</p></th>${Array.from({ length: 4 }, (_, column) => `<td data-pptx-shape><p>Scenario ${column + 1}</p></td>`).join('')}</tr>`).join('');
   slides.push(fill(layouts['flex-table'].body, { ...common, SLIDE_ID: 'flex-table', TITLE: 'ROI model', LEAD_TITLE: 'Core financial conclusion', LEAD_BODY: 'The conservative case maintains positive cash flow.', TABLE_LABEL: 'ROI assumptions', COLUMN_COUNT: '5', ROW_COUNT: '5', TABLE_HEAD_CELLS: headers, TABLE_BODY_ROWS: rows }));
 
@@ -288,7 +371,7 @@ function buildPriorityFixture() {
   });
 }
 
-async function renderedChecks(page, html, sourceLabel, { requireSourceOwner = false } = {}) {
+async function renderedChecks(page, html, sourceLabel, { requireSourceOwner = false, expectedOwners = null } = {}) {
   const failures = [];
   if (/<template\b|data-layout-exemplar=/iu.test(html)) failures.push(`${sourceLabel}: generated HTML contains a nested template fragment`);
   const declaredLayouts = [...html.matchAll(/<section\b[^>]*\bclass="[^"]*\bslide\b[^"]*"[^>]*\bdata-layout="([^"]+)"/gu)].map((match) => match[1]);
@@ -304,7 +387,7 @@ async function renderedChecks(page, html, sourceLabel, { requireSourceOwner = fa
   const layoutNames = fs.readdirSync(layoutRoot).filter((name) => name.endsWith('.html')).map((name) => path.basename(name, '.html'));
   const knownLayouts = new Set(layoutNames);
   const contracts = Object.fromEntries(layoutNames.map((name) => [name, layoutContract(name)]));
-  const result = await page.evaluate(({ sourceLabel, requireSourceOwner, knownLayouts, contracts }) => {
+  const result = await page.evaluate(({ sourceLabel, requireSourceOwner, expectedOwners, knownLayouts, contracts }) => {
     const failures = [];
     const rect = (element) => element.getBoundingClientRect();
     const slides = [...document.querySelectorAll('.slide')];
@@ -348,13 +431,30 @@ async function renderedChecks(page, html, sourceLabel, { requireSourceOwner = fa
               failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} is not canonical ${repeat.itemTag}.${repeat.itemClass}`);
               continue;
             }
+            const allowedClasses = new Set([repeat.itemClass, ...repeat.allowedItemClasses]);
+            for (const className of item.classList) if (!allowedClasses.has(className)) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} has undeclared modifier class .${className}`);
             let lastRoleIndex = -1;
             const descendants = [...item.querySelectorAll('*')];
             for (const roleClass of repeat.roleClasses) {
               const matches = descendants.map((element, indexValue) => ({ element, indexValue })).filter(({ element }) => element.classList.contains(roleClass));
               if (matches.length !== 1) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} requires exactly one .${roleClass}`);
-              else if (matches[0].indexValue <= lastRoleIndex) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} role .${roleClass} is out of canonical order`);
-              else lastRoleIndex = matches[0].indexValue;
+              else {
+                const { element, indexValue } = matches[0];
+                if (indexValue <= lastRoleIndex) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} role .${roleClass} is out of canonical order`);
+                else lastRoleIndex = indexValue;
+                if (repeat.roleTags[roleClass] && element.tagName.toLowerCase() !== repeat.roleTags[roleClass]) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} role .${roleClass} must use <${repeat.roleTags[roleClass]}>`);
+                if (repeat.directRoleClasses.includes(roleClass) && element.parentElement !== item) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} role .${roleClass} must be a direct child`);
+                for (const attr of repeat.roleAttrs[roleClass] || []) if (!element.hasAttribute(attr)) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} role .${roleClass} requires ${attr}`);
+              }
+            }
+            for (const roleClass of repeat.optionalRoleClasses) {
+              const matches = descendants.filter((element) => element.classList.contains(roleClass));
+              if (matches.length > 1) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} allows at most one .${roleClass}`);
+              for (const element of matches) {
+                if (repeat.roleTags[roleClass] && element.tagName.toLowerCase() !== repeat.roleTags[roleClass]) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} optional role .${roleClass} must use <${repeat.roleTags[roleClass]}>`);
+                if (repeat.directRoleClasses.includes(roleClass) && element.parentElement !== item) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} optional role .${roleClass} must be a direct child`);
+                for (const attr of repeat.roleAttrs[roleClass] || []) if (!element.hasAttribute(attr)) failures.push(`${sourceLabel}: slide ${index + 1} repeat group ${repeat.name} item ${itemIndex + 1} optional role .${roleClass} requires ${attr}`);
+              }
             }
           }
         }
@@ -384,8 +484,8 @@ async function renderedChecks(page, html, sourceLabel, { requireSourceOwner = fa
           const style = getComputedStyle(fact);
           return Number.parseFloat(style.borderLeftWidth) > 0 || Number.parseFloat(style.borderRightWidth) > 0;
         });
-        if (!main || !facts || factNodes.length !== 3 || Number.parseFloat(mainStyle?.borderRightWidth || '0') <= 0 || factHasDivider) {
-          failures.push(`${sourceLabel}: slide ${index + 1} loss strip must render exactly one divider between loss-main and three grouped facts`);
+        if (!main || !facts || factNodes.length < 1 || Number.parseFloat(mainStyle?.borderRightWidth || '0') <= 0 || factHasDivider) {
+          failures.push(`${sourceLabel}: slide ${index + 1} loss strip must render exactly one divider between loss-main and its grouped peer facts`);
         }
         if (main?.querySelector('h1,h2,h3') || slide.querySelector('.warning h1,.warning h2,.warning h3')) {
           failures.push(`${sourceLabel}: slide ${index + 1} ordinary loss and warning labels must not be promoted to headings`);
@@ -445,6 +545,9 @@ async function renderedChecks(page, html, sourceLabel, { requireSourceOwner = fa
             continue;
           }
           if (!badge.hasAttribute('data-pptx-shape') || !badge.hasAttribute('data-pptx-text')) failures.push(`${sourceLabel}: slide ${index + 1} evidence-card ordinal is not a standalone materializable node`);
+          const title = card.querySelector(':scope .summary-card-title');
+          const ordinalPrefix = /^(\d+)\s*[.·:)\-]\s*/u.exec(title?.textContent?.trim() ?? '');
+          if (ordinalPrefix && Number.parseInt(ordinalPrefix[1], 10) === Number.parseInt(badge.textContent?.trim() ?? '', 10)) failures.push(`${sourceLabel}: slide ${index + 1} evidence-card ordinal is duplicated in its title`);
           const gap = rect(bodyCopy).top - rect(caption).bottom;
           if (gap > rect(card).height * .15) failures.push(`${sourceLabel}: slide ${index + 1} evidence card contains an excessive empty middle band`);
         }
@@ -483,8 +586,36 @@ async function renderedChecks(page, html, sourceLabel, { requireSourceOwner = fa
           if (bounds.width > .7 || bounds.height > 1.4) failures.push(`${sourceLabel}: slide ${index + 1} response arrowhead is oversized or fan-shaped`);
         }
       }
+      if (layout === 'flex-table') {
+        const table = slide.querySelector('.flex-table');
+        const columnCount = Number(table?.dataset.columnCount);
+        const headerCells = table ? [...table.querySelectorAll(':scope > thead > tr > th')] : [];
+        const rows = table ? [...table.querySelectorAll(':scope > tbody > tr')] : [];
+        if (!Number.isInteger(columnCount) || columnCount < 1 || headerCells.length !== columnCount) failures.push(`${sourceLabel}: slide ${index + 1} flex table header count must equal data-column-count`);
+        for (const [rowIndex, row] of rows.entries()) if (row.children.length !== columnCount) failures.push(`${sourceLabel}: slide ${index + 1} flex table row ${rowIndex + 1} cell count must equal data-column-count`);
+      }
     }
     if (owners.length !== new Set(owners).size) failures.push(`${sourceLabel}: duplicate data-source-owner`);
+    if (expectedOwners?.length) {
+      if (owners.length < expectedOwners.length) failures.push(`${sourceLabel}: ${owners.length} rendered slides are below the ${expectedOwners.length}-owner source floor`);
+      let ownerIndex = 0;
+      for (const expectedOwner of expectedOwners) {
+        if (owners[ownerIndex] !== expectedOwner) {
+          failures.push(`${sourceLabel}: expected source owner ${expectedOwner} at slide ${ownerIndex + 1}, found ${owners[ownerIndex] ?? 'no slide'}`);
+          break;
+        }
+        ownerIndex += 1;
+        const continuationPrefix = `${expectedOwner} — continued `;
+        let continuationNumber = 2;
+        while (owners[ownerIndex]?.startsWith(continuationPrefix)) {
+          const suffix = owners[ownerIndex].slice(continuationPrefix.length);
+          if (suffix !== String(continuationNumber)) failures.push(`${sourceLabel}: invalid continuation owner ${owners[ownerIndex]}; expected ${continuationPrefix}${continuationNumber}`);
+          ownerIndex += 1;
+          continuationNumber += 1;
+        }
+      }
+      for (; ownerIndex < owners.length; ownerIndex += 1) failures.push(`${sourceLabel}: unexpected source owner ${owners[ownerIndex]} at slide ${ownerIndex + 1}`);
+    }
     const grid = document.querySelector('#metric-grid');
     if (grid) {
       for (const group of grid.querySelectorAll('.metric-grid-cards')) {
@@ -502,20 +633,20 @@ async function renderedChecks(page, html, sourceLabel, { requireSourceOwner = fa
       if (Number(group?.dataset.cardCount) !== 4 || actual !== 4) failures.push('summary-band-evidence-cards: four authored peer cards were not preserved');
     }
     return failures;
-  }, { sourceLabel, requireSourceOwner, knownLayouts: [...knownLayouts], contracts });
+  }, { sourceLabel, requireSourceOwner, expectedOwners, knownLayouts: [...knownLayouts], contracts });
   failures.push(...result);
   return failures;
 }
 
 (async () => {
-  const args = process.argv.slice(2);
-  const requireSourceOwner = args.includes('--require-source-owner');
-  const fileNames = args.filter((value) => value !== '--require-source-owner');
+  const { requireSourceOwner, sourceFile, fileNames } = parseArgs(process.argv.slice(2));
+  const expectedOwners = sourceFile ? markdownBoundaryOwners(fs.readFileSync(path.resolve(sourceFile), 'utf8')) : null;
+  if (sourceFile && !expectedOwners.length) throw new Error(`${sourceFile}: no H1-H3 boundary owners found`);
   const failures = staticChecks();
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   failures.push(...await renderedChecks(page, buildPriorityFixture(), 'priority fixture'));
-  for (const fileName of fileNames) failures.push(...await renderedChecks(page, fs.readFileSync(path.resolve(fileName), 'utf8'), fileName, { requireSourceOwner }));
+  for (const fileName of fileNames) failures.push(...await renderedChecks(page, fs.readFileSync(path.resolve(fileName), 'utf8'), fileName, { requireSourceOwner: requireSourceOwner || Boolean(sourceFile), expectedOwners }));
   await browser.close();
   console.log(JSON.stringify({ status: failures.length ? 'failed' : 'passed', failures }, null, 2));
   process.exitCode = failures.length ? 1 : 0;

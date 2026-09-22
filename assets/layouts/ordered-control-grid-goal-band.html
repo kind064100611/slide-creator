@@ -20,7 +20,7 @@
 <!-- Fixed skeleton: four ordered peer control cards, each with an ordinal, title, checklist, and card-owned goal, followed by one full-width overall goal band. Repeat only control cards. -->
 <section id="{{SLIDE_ID}}" class="slide" data-layout="ordered-control-grid-goal-band" aria-label="{{SLIDE_LABEL}}"><article class="canvas"><span class="rail" data-pptx-shape aria-hidden="true"></span>
   <header class="slide-header compact slide-section" data-pptx-shape><h1 class="title">{{TITLE}}</h1></header>
-  <div class="control-grid" data-layout-repeat="control-cards" data-layout-count="{{CONTROL_COUNT}}" data-layout-item-tag="article" data-layout-item-class="control" data-layout-item-roles="idx control-title control-list control-goal">{{CONTROL_CARDS}}</div>
-  <div class="quality" data-pptx-shape data-geometry-contain-content>{{QUALITY}}</div>
+  <div class="control-grid" data-layout-repeat="control-cards" data-layout-count="{{CONTROL_COUNT}}" data-layout-item-tag="article" data-layout-item-class="control" data-layout-item-roles="idx control-title control-list control-goal" data-layout-role-tags="idx:span control-title:h2 control-list:ul control-goal:p" data-layout-direct-roles="idx control-title control-list control-goal" data-layout-role-attrs="idx:data-pptx-shape,data-pptx-text" data-layout-allowed-item-classes="panel">{{CONTROL_CARDS}}</div>
+  <div class="quality" data-pptx-shape data-geometry-contain-content><strong class="overall-goal-title">{{OVERALL_GOAL_TITLE}}</strong><small class="overall-goal-body">{{OVERALL_GOAL_BODY}}</small></div>
   <footer class="deck-foot"><p>{{FOOTER_NOTE}}</p><p>{{PAGE_COUNTER}}</p></footer>
 </article></section>

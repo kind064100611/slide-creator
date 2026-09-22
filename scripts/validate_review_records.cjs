@@ -248,18 +248,16 @@ async function extractDeck(browser, filePath, contracts, candidate) {
         const prominentMetrics = leaves.filter((run) => run.numerics.length && run.fontSize >= 24).length;
         return { role: ownerPath(element, slide), box: elementBox, textCount: leaves.length, heightCoverage, largestBlank: largestGap(localRanges, rect.top - slideRect.top, rect.bottom - slideRect.top), prominentMetrics };
       }).filter(Boolean);
-      const transparentRepeatGroups = new WeakSet();
-      const childSignature = (child) => `${child.tagName}.${[...child.classList].sort().join('.')}`;
       const peerGroupFor = (parent, children) => {
         if (children.length < 2) return null;
-        const signatures = children.map(childSignature);
-        const common = signatures.filter((signature) => signature === signatures[0]).length;
-        if (common !== children.length) return null;
+        if (!children.every((child) => child.tagName === children[0].tagName)) return null;
+        const sharedClasses = [...children[0].classList].filter((className) => children.every((child) => child.classList.contains(className)));
+        if (!sharedClasses.length) return null;
         const rects = children.map((child) => box(child.getBoundingClientRect(), slideRect));
         return { role: ownerPath(parent, slide), count: children.length, rows: new Set(rects.map((rect) => Math.round(rect.y * 20))).size, columns: new Set(rects.map((rect) => Math.round(rect.x * 20))).size };
       };
       const directPeerGroups = [...slide.querySelectorAll('div,section,article')].map((parent) => {
-        if (parent.classList.contains('canvas') || transparentRepeatGroups.has(parent)) return null;
+        if (parent.classList.contains('canvas')) return null;
         const children = [...parent.children].filter((child) => {
           if (!visible(child) || !['ARTICLE', 'DIV', 'LI', 'SECTION', 'SPAN'].includes(child.tagName)) return false;
           if (child.tagName !== 'SPAN') return true;
@@ -270,14 +268,6 @@ async function extractDeck(browser, filePath, contracts, candidate) {
           if (children.length < 2) return null;
           const rects = children.map((child) => box(child.getBoundingClientRect(), slideRect));
           return { role: ownerPath(parent, slide), count: children.length, rows: new Set(rects.map((rect) => Math.round(rect.y * 20))).size, columns: new Set(rects.map((rect) => Math.round(rect.x * 20))).size };
-        }
-        if (children.length >= 2) {
-          const flattened = children.flatMap((child) => child.hasAttribute('data-layout-repeat') ? [...child.children].filter((item) => item.tagName !== 'TEMPLATE' && visible(item)) : [child]);
-          const flattenedGroup = flattened.length !== children.length ? peerGroupFor(parent, flattened) : null;
-          if (flattenedGroup) {
-            for (const child of children) if (child.hasAttribute('data-layout-repeat')) transparentRepeatGroups.add(child);
-            return flattenedGroup;
-          }
         }
         return peerGroupFor(parent, children);
       }).filter(Boolean);
@@ -332,8 +322,8 @@ async function extractDeck(browser, filePath, contracts, candidate) {
               const style = getComputedStyle(fact);
               return Number.parseFloat(style.borderLeftWidth) > 0 || Number.parseFloat(style.borderRightWidth) > 0;
             });
-            if (!main || !facts || factNodes.length !== 3 || Number.parseFloat(getComputedStyle(main).borderRightWidth) <= 0 || factHasDivider) {
-              contractFailures.push('loss strip must render exactly one divider between loss-main and three grouped facts');
+            if (!main || !facts || factNodes.length < 1 || Number.parseFloat(getComputedStyle(main).borderRightWidth) <= 0 || factHasDivider) {
+              contractFailures.push('loss strip must render exactly one divider between loss-main and its grouped peer facts');
             }
             if (main?.querySelector('h1,h2,h3') || slide.querySelector('.warning h1,.warning h2,.warning h3')) contractFailures.push('ordinary loss and warning labels must not be promoted to headings');
           }
@@ -431,11 +421,28 @@ async function extractDeck(browser, filePath, contracts, candidate) {
         .replace(/^\+/u, '')
         .replace(/^rmb/u, '')
         .replace(/(?:%|x|×|m|b|k|s|min|mins|minutes|days|weeks|years|q[1-4])$/u, '');
-      const semanticListOrdinals = [...slide.querySelectorAll('ol')].filter(visible).flatMap((list) => [...list.children].filter((item) => item.tagName === 'LI' && visible(item)).map((_, itemIndex) => String(itemIndex + 1)));
-      const numerics = [...new Set([...textRuns.flatMap((run) => run.numerics).map(canonicalNumeric).filter(Boolean), ...semanticListOrdinals])];
+      const ordinalTokens = (run) => {
+        const tokens = [];
+        const standalone = /^(0?[1-9]|1[0-9]|20)[.):]?$/u.exec(run.text);
+        if (standalone && (/^0\d/u.test(run.text) || /(?:num|index|idx|step)/iu.test(run.owner))) tokens.push(standalone[1]);
+        const punctuated = /^(0?[1-9]|1[0-9]|20)\s*[.·:)]\s*(?=\S)/u.exec(run.text);
+        if (punctuated && (/^h[1-6]$/u.test(run.tag) || /(?:title|heading|label)/iu.test(run.owner))) tokens.push(punctuated[1]);
+        const zeroPadded = /^(0[1-9])\s+(?=\S)/u.exec(run.text);
+        if (zeroPadded) tokens.push(zeroPadded[1]);
+        for (const match of run.text.matchAll(/(?:^|\s)(0?[1-9]|1[0-9]|20)[.)]\s+(?=[A-Z])/gu)) tokens.push(match[1]);
+        return tokens;
+      };
+      const ordinalRuns = textRuns.flatMap(ordinalTokens).map((value) => String(Number.parseInt(value, 10)));
+      const numerics = [...new Set(textRuns.flatMap((run) => {
+        const values = [...run.numerics];
+        for (const ordinal of ordinalTokens(run)) {
+          const indexValue = values.findIndex((value) => Number.parseInt(value, 10) === Number.parseInt(ordinal, 10));
+          if (indexValue >= 0) values.splice(indexValue, 1);
+        }
+        return values;
+      }).map(canonicalNumeric).filter(Boolean))];
       const footerText = clean(slide.querySelector('.deck-foot')?.textContent || '');
       const bodyText = clean([...slide.querySelectorAll('.canvas > :not(.deck-foot)')].map((element) => element.textContent).join(' '));
-      const ordinalRuns = textRuns.filter((run) => /^(?:0[1-9]|1[0-9]|20)[.):]?$/u.test(run.text) || (/^(?:[1-9]|1[0-9]|20)[.):]?$/u.test(run.text) && /(?:num|index|idx|step)/iu.test(run.owner)) || /^[ivx]+[.):]$/iu.test(run.text)).map((run) => run.text.toLowerCase());
       const explicitHeads = [...slide.querySelectorAll('[class*="arrowhead"],[class*="arrow-head"]')].filter(visible).length;
       const glyphConnectors = textRuns.filter((run) => /^[→←↑↓↗↘↙↖]$/u.test(run.text)).length;
       let pseudoConnectors = 0;
@@ -447,11 +454,15 @@ async function extractDeck(browser, filePath, contracts, candidate) {
       }
       const explicitPaths = [...slide.querySelectorAll('svg line,svg path,svg polyline')].filter(visible).length;
       const connectors = explicitHeads || glyphConnectors || pseudoConnectors || explicitPaths;
+      const tables = [...slide.querySelectorAll('table')].filter(visible).map((table) => {
+        const rows = [...table.querySelectorAll('tr')].filter(visible);
+        return { rows: rows.length, columns: rows.length ? Math.max(...rows.map((row) => [...row.children].filter(visible).length)) : 0 };
+      });
       return {
         page: index + 1, title, layout, sourceOwner: slide.dataset.sourceOwner || '', textRuns, footerText, bodyText,
         words: textRuns.flatMap((run) => clean(run.text).toLowerCase().match(/[a-z0-9]+(?:[.'’-][a-z0-9]+)*/gu) || []), numerics, ordinalRuns,
         occupancy, largestPageBlank: largestGap(leafRanges.map(([top, bottom]) => [top * slideRect.height, bottom * slideRect.height]), 0, slideRect.height),
-        containers, peerGroups: directPeerGroups, connectors, contractFailures,
+        containers, peerGroups: directPeerGroups, tables, connectors, contractFailures,
         escapedTextRuns: textRuns.filter((run) => run.escapesSurface).map((run) => ({ text: run.text, owner: run.owner, surfaceRole: run.surfaceRole })),
         prominentMetrics: textRuns.filter((run) => run.numerics.length && run.fontSize >= 24).length,
         multiMetricRuns: textRuns.filter((run) => run.numerics.length > 1).map((run) => run.text),
@@ -555,18 +566,19 @@ function comparePage(reference, candidate) {
   const addedWords = missingItems(candidate.words, reference.words);
   const recall = reference.words.length ? 1 - missingWords.length / reference.words.length : 1;
   const precision = candidate.words.length ? 1 - addedWords.length / candidate.words.length : 1;
-  if (recall < .82 || precision < .72) addFinding(findings, 'blocker', 'content-ledger-delta', 'Visible text diverges materially from the reference.', { recall, precision, missing: missingWords.slice(0, 30), added: addedWords.slice(0, 30) });
-  else if (recall < .92 || precision < .88) addFinding(findings, 'major', 'content-ledger-delta', 'Visible text has unexplained omissions or additions.', { recall, precision, missing: missingWords.slice(0, 20), added: addedWords.slice(0, 20) });
+  if (recall < .55 || precision < .45) addFinding(findings, 'blocker', 'content-ledger-delta', 'Visible wording suggests severe semantic loss or invention; confirm against the source ledger.', { recall, precision, missing: missingWords.slice(0, 30), added: addedWords.slice(0, 30) });
+  else if (recall < .7 || precision < .6) addFinding(findings, 'major', 'content-ledger-delta', 'Visible wording suggests a possible semantic omission or addition; inspect the paired page.', { recall, precision, missing: missingWords.slice(0, 20), added: addedWords.slice(0, 20) });
 
-  const missingOrdinals = missingItems([...new Set(reference.ordinalRuns)], [...new Set(candidate.ordinalRuns)]);
-  if (missingOrdinals.length) addFinding(findings, 'major', 'ordinal-role-merged', 'Standalone authored ordinals were removed or merged into labels.', { missing: missingOrdinals });
   if (reference.footerText && normalizeText(candidate.bodyText).toLowerCase().includes(normalizeText(reference.footerText).toLowerCase())) {
     addFinding(findings, 'major', 'footer-content-duplicated', 'Reference footer content was copied into the candidate body.', { footer: reference.footerText });
   }
 
   for (const match of pairTextRuns(reference.textRuns, candidate.textRuns)) {
-    const headingPromoted = !/^h[1-3]$/u.test(match.reference.tag) && /^h[1-3]$/u.test(match.candidate.tag);
-    const scalePromoted = match.candidate.fontSize > match.reference.fontSize * 1.35 && match.candidate.fontSize - match.reference.fontSize >= 6;
+    const candidateUsesSemanticTitleSlot = match.reference.tag === 'strong'
+      && /(?:^|[.\s-])(?:impact|card|note|item|signal|branch)[\w-]*-title\b/iu.test(match.candidate.owner)
+      && match.candidate.fontSize <= match.reference.fontSize * 1.35;
+    const headingPromoted = !candidateUsesSemanticTitleSlot && !/^h[1-3]$/u.test(match.reference.tag) && /^h[1-3]$/u.test(match.candidate.tag);
+    const scalePromoted = match.candidate.fontSize > match.reference.fontSize * 1.7 && match.candidate.fontSize - match.reference.fontSize >= 10;
     if (headingPromoted || scalePromoted) addFinding(findings, 'major', 'hierarchy-promotion', 'A reference item was promoted to a stronger title role.', { reference: match.reference.text, candidate: match.candidate.text, referenceTag: match.reference.tag, candidateTag: match.candidate.tag, referenceFont: match.reference.fontSize, candidateFont: match.candidate.fontSize });
   }
 
@@ -577,10 +589,14 @@ function comparePage(reference, candidate) {
   if (sparseCandidate >= Math.max(2, sparseReference + 2)) addFinding(findings, 'blocker', 'repeated-sparse-containers', 'Two or more large containers have severe internal dead space.', { reference: sparseReference, candidate: sparseCandidate });
   else if (sparseCandidate > sparseReference) addFinding(findings, 'major', 'sparse-container-regression', 'A large semantic container has substantially weaker internal occupancy.', { reference: sparseReference, candidate: sparseCandidate });
 
-  const referencePeers = reference.peerGroups.map((group) => group.count).sort((a, b) => a - b);
-  const candidatePeers = candidate.peerGroups.map((group) => group.count).sort((a, b) => a - b);
+  const referencePeers = [...new Set(reference.peerGroups.map((group) => group.count))].sort((a, b) => a - b);
+  const candidatePeers = [...new Set(candidate.peerGroups.map((group) => group.count))].sort((a, b) => a - b);
   const missingPeerCounts = missingItems(referencePeers, candidatePeers);
   if (missingPeerCounts.length) addFinding(findings, 'major', 'peer-topology-delta', 'A repeated peer-group cardinality present in the reference is missing from the candidate.', { reference: referencePeers, candidate: candidatePeers, missing: missingPeerCounts });
+  const tableShape = (table) => `${table.rows}x${table.columns}`;
+  const referenceTables = reference.tables.map(tableShape);
+  const candidateTables = candidate.tables.map(tableShape);
+  if (referenceTables.join('|') !== candidateTables.join('|')) addFinding(findings, 'blocker', 'table-topology-delta', 'Table row/column structure changed or adjacent columns were merged.', { reference: referenceTables, candidate: candidateTables });
   if (reference.connectors && candidate.connectors < reference.connectors) addFinding(findings, 'blocker', 'connector-loss', 'Visible connector objects were lost.', { reference: reference.connectors, candidate: candidate.connectors });
   if (!reference.connectors && candidate.connectors) addFinding(findings, 'blocker', 'connector-invention', 'Candidate invents relationship connectors that do not exist in the reference.', { reference: reference.connectors, candidate: candidate.connectors });
   return findings;

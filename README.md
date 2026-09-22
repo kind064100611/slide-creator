@@ -47,8 +47,8 @@ cd slide-creator
 # Validate the built-in layouts
 node scripts/validate_layouts.cjs
 
-# Validate generated HTML and require every slide to declare its source owner
-node scripts/validate_layouts.cjs --require-source-owner <generated.html>
+# Validate generated HTML against its Markdown source-owner ledger
+node scripts/validate_layouts.cjs --require-source-owner --source <source.md> <generated.html>
 
 # Compare candidate HTML with reference HTML for structure and content
 node scripts/validate_review_records.cjs <reference.html> <candidate.html>
