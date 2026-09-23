@@ -255,6 +255,10 @@ async function extractDeck(browser, filePath, contracts, candidate) {
         const prominentMetrics = leaves.filter((run) => run.numerics.length && run.fontSize >= 24).length;
         return { role: ownerPath(element, slide), box: elementBox, textCount: leaves.length, heightCoverage, largestBlank: largestGap(localRanges, rect.top - slideRect.top, rect.bottom - slideRect.top), prominentMetrics };
       }).filter(Boolean);
+      const occupiedPageRanges = [
+        ...leafRanges,
+        ...containers.map((item) => [item.box.y, item.box.bottom]),
+      ];
       const peerGroupFor = (parent, children) => {
         if (children.length < 2) return null;
         if (!children.every((child) => child.tagName === children[0].tagName)) return null;
@@ -469,14 +473,19 @@ async function extractDeck(browser, filePath, contracts, candidate) {
       }
       const explicitPaths = [...slide.querySelectorAll('svg line,svg path,svg polyline')].filter(visible).length;
       const connectors = explicitHeads || glyphConnectors || pseudoConnectors || explicitPaths;
-      const tables = [...slide.querySelectorAll('table')].filter(visible).map((table) => {
-        const rows = [...table.querySelectorAll('tr')].filter(visible);
+      const tables = [...slide.querySelectorAll('table,[role="table"]')].filter(visible).map((table) => {
+        const nativeRows = [...table.querySelectorAll('tr')];
+        const gridRows = [
+          ...table.querySelectorAll(':scope > [role="row"]'),
+          ...table.querySelectorAll(':scope > [role="rowgroup"] > [role="row"],:scope > [role="rowgroup"] > .flex-table-row'),
+        ];
+        const rows = [...new Set(nativeRows.length ? nativeRows : gridRows)].filter(visible);
         return { rows: rows.length, columns: rows.length ? Math.max(...rows.map((row) => [...row.children].filter(visible).length)) : 0 };
       });
       return {
         page: index + 1, title, layout, sourceOwner: slide.dataset.sourceOwner || '', textRuns, footerText, bodyText,
         words: textRuns.flatMap((run) => clean(run.text).toLowerCase().match(/[a-z0-9]+(?:[.'’-][a-z0-9]+)*/gu) || []), numerics, ordinalRuns,
-        occupancy, largestPageBlank: largestGap(leafRanges.map(([top, bottom]) => [top * slideRect.height, bottom * slideRect.height]), 0, slideRect.height),
+        occupancy, largestPageBlank: largestGap(occupiedPageRanges.map(([top, bottom]) => [top * slideRect.height, bottom * slideRect.height]), 0, slideRect.height),
         containers, peerGroups: directPeerGroups, tables, connectors, contractFailures,
         escapedTextRuns: textRuns.filter((run) => run.escapesSurface).map((run) => ({ text: run.text, owner: run.owner, surfaceRole: run.surfaceRole })),
         prominentMetrics: textRuns.filter((run) => run.numerics.length && run.fontSize >= 24).length,
@@ -595,6 +604,21 @@ function comparePage(reference, candidate) {
     const headingPromoted = !candidateUsesSemanticTitleSlot && !/^h[1-3]$/u.test(match.reference.tag) && /^h[1-3]$/u.test(match.candidate.tag);
     const scalePromoted = match.candidate.fontSize > match.reference.fontSize * 1.7 && match.candidate.fontSize - match.reference.fontSize >= 10;
     if (headingPromoted || scalePromoted) addFinding(findings, 'major', 'hierarchy-promotion', 'A reference item was promoted to a stronger title role.', { reference: match.reference.text, candidate: match.candidate.text, referenceTag: match.reference.tag, candidateTag: match.candidate.tag, referenceFont: match.reference.fontSize, candidateFont: match.candidate.fontSize });
+  }
+
+  const emphasizedReferenceRuns = reference.textRuns.filter((run) => !/^h[1-3]$/u.test(run.tag) && (['strong', 'b'].includes(run.tag) || run.fontWeight >= 650));
+  for (const referenceRun of emphasizedReferenceRuns) {
+    const referenceText = normalizeText(referenceRun.text).toLowerCase();
+    if (!referenceText) continue;
+    const preservingRuns = candidate.textRuns.filter((run) => {
+      const candidateText = normalizeText(run.text).toLowerCase();
+      return candidateText === referenceText || candidateText.includes(referenceText);
+    });
+    if (!preservingRuns.length) continue;
+    preservingRuns.sort((a, b) => normalizeText(a.text).length - normalizeText(b.text).length || Math.abs(a.fontSize - referenceRun.fontSize) - Math.abs(b.fontSize - referenceRun.fontSize));
+    const candidateRun = preservingRuns[0];
+    const preservesEmphasis = ['strong', 'b'].includes(candidateRun.tag) || /^h[1-3]$/u.test(candidateRun.tag) || candidateRun.fontWeight >= 650;
+    if (!preservesEmphasis) addFinding(findings, 'major', 'emphasis-demotion', 'An authored emphasized phrase was flattened into ordinary copy.', { reference: referenceRun.text, candidate: candidateRun.text, referenceTag: referenceRun.tag, candidateTag: candidateRun.tag, referenceWeight: referenceRun.fontWeight, candidateWeight: candidateRun.fontWeight });
   }
 
   if (candidate.largestPageBlank > Math.max(.24, reference.largestPageBlank + .1)) addFinding(findings, 'major', 'page-dead-band', 'Candidate introduces a materially larger empty page band.', { reference: reference.largestPageBlank, candidate: candidate.largestPageBlank });
